@@ -12,7 +12,7 @@ namespace backend.Services
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret")!));
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found")));
         }
 
         public string GenerateAccessToken(IdentityUser user)

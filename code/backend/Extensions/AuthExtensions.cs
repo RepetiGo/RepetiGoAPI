@@ -30,7 +30,7 @@ namespace backend.Extensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration.GetValue<string>("Jwt:Issuer"),
                     ValidAudience = configuration.GetValue<string>("Jwt:Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret")!)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found"))),
                     ClockSkew = TimeSpan.Zero // Remove delay of token when expire
                 };
             });

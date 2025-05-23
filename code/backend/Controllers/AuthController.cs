@@ -34,7 +34,14 @@ namespace backend.Controllers
 
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors.FirstOrDefault());
+                return BadRequest(
+                    new ResponseErrorDto
+                    (
+                        HttpStatusCode.BadRequest,
+                        result.Errors.FirstOrDefault()?.Description ?? "User registration failed",
+                        "Bad Request"
+                    )
+                );
             }
 
             return Ok(
