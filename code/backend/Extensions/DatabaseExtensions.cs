@@ -21,7 +21,7 @@
                 options.Password.RequireLowercase = true;
                 options.User.RequireUniqueEmail = true;
             }).AddEntityFrameworkStores<ApplicationDbContext>()
-               .AddDefaultTokenProviders();
+               .AddDefaultTokenProviders(); // Add default token providers for password reset, email confirmation, etc.
             return services;
         }
     }

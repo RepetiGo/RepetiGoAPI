@@ -5,12 +5,5 @@
         public HttpStatusCode StatusCode { get; set; }
         public string Message { get; set; } = string.Empty;
         public string Error { get; set; } = string.Empty;
-
-        public ResponseErrorDto(HttpStatusCode statusCode, string message, string error)
-        {
-            StatusCode = statusCode;
-            Message = message;
-            Error = error;
-        }
     }
 }

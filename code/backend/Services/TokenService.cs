@@ -1,5 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace backend.Services
@@ -7,15 +9,51 @@ namespace backend.Services
     public class TokenService : ITokenService
     {
         private readonly SymmetricSecurityKey _key;
+        private readonly IDistributedCache _cache;
         private readonly IConfiguration _configuration;
 
-        public TokenService(IConfiguration configuration)
+        public TokenService(IConfiguration configuration, IDistributedCache cache)
         {
             _configuration = configuration;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found")));
+            _cache = cache;
         }
 
-        public string GenerateAccessToken(IdentityUser user)
+        public async Task<AuthResponseDto> GenerateTokensAsync(IdentityUser user)
+        {
+            return new AuthResponseDto
+            {
+                UserId = user.Id,
+                Email = user.Email!,
+                AccessToken = GenerateAccessToken(user),
+                RefreshToken = await GenerateRefreshToken(user)
+            };
+        }
+
+        public async Task<AuthResponseDto?> RefreshTokenAsync(IdentityUser user, string refreshToken)
+        {
+            var cachedUserId = await _cache.GetStringAsync(refreshToken);
+            if (string.IsNullOrEmpty(cachedUserId) || cachedUserId != user.Id)
+            {
+                return null;
+            }
+
+            await _cache.RemoveAsync(refreshToken);
+            return await GenerateTokensAsync(user);
+        }
+
+        public async Task<bool> RevokeRefreshTokenAsync(IdentityUser user, string refreshToken)
+        {
+            var cachedUserId = await _cache.GetStringAsync(refreshToken);
+            if (string.IsNullOrEmpty(cachedUserId) || cachedUserId != user.Id)
+            {
+                return false;
+            }
+            await _cache.RemoveAsync(refreshToken);
+            return true;
+        }
+
+        private string GenerateAccessToken(IdentityUser user)
         {
             var claims = new List<Claim>
             {
@@ -28,15 +66,28 @@ namespace backend.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Issuer = _configuration.GetValue<string>("Jwt:Issuer"),
-                Audience = _configuration.GetValue<string>("Jwt:Audience"),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Issuer = _configuration.GetValue<string>("Jwt:Issuer") ?? throw new InvalidOperationException("Issuer not found"),
+                Audience = _configuration.GetValue<string>("Jwt:Audience") ?? throw new InvalidOperationException("Audience not found"),
+                Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<double?>("Jwt:TokenValidityInMinutes") ?? 15),
                 SigningCredentials = credentials,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor); // create the token object
-            return tokenHandler.WriteToken(token); // write the token to a string
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        private async Task<string> GenerateRefreshToken(IdentityUser user)
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            var refreshToken = Convert.ToBase64String(randomNumber);
+            await _cache.SetStringAsync(refreshToken, user.Id, new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_configuration.GetValue<int>("Jwt:RefreshTokenValidityInDays"))
+            });
+            return refreshToken;
         }
     }
 }

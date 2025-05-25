@@ -12,10 +12,5 @@ namespace backend.Controllers
         {
             return Ok(new { message = "Test successful!" });
         }
-        [HttpGet("test2")]
-        public IActionResult Test2()
-        {
-            return Ok(new { message = "Test2 successful!" });
-        }
     }
 }

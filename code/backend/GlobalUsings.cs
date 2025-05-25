@@ -1,5 +1,6 @@
 ﻿global using backend.Data;
 global using backend.Dtos;
+global using backend.Dtos.AuthDtos;
 global using backend.Helpers;
 global using backend.Interfaces;
 global using backend.Services;
