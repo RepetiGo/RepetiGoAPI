@@ -24,11 +24,11 @@
             var existingUser = await _userManager.FindByEmailAsync(registerDto.Email);
             if (existingUser != null)
             {
-                return Unauthorized(new ResponseErrorDto
+                return Conflict(new ResponseErrorDto
                 {
-                    StatusCode = HttpStatusCode.Unauthorized,
+                    StatusCode = HttpStatusCode.Conflict,
                     Message = "User with this email already exists",
-                    Error = "Unauthorized"
+                    Error = "Conflict"
                 });
             }
 
