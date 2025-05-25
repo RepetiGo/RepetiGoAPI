@@ -16,12 +16,12 @@ namespace backend
             });
             builder.Services.AddDatabaseServices(builder.Configuration);
             builder.Services.AddAuthServices(builder.Configuration);
+            builder.Services.AddCacheServices(builder.Configuration);
 
             builder.Services.AddSingleton<ITokenService, TokenService>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
