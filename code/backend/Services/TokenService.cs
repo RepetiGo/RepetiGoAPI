@@ -82,7 +82,7 @@ namespace backend.Services
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-            var refreshToken = Convert.ToBase64String(randomNumber);
+            var refreshToken = WebEncoders.Base64UrlEncode(randomNumber);
             await _cache.SetStringAsync(refreshToken, user.Id, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_configuration.GetValue<int>("Jwt:RefreshTokenValidityInDays"))
