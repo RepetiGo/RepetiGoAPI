@@ -7,10 +7,30 @@ namespace backend.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        [HttpGet("test")]
-        public IActionResult Test()
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public TestController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            return Ok(new { message = "Test successful!" });
+            _context = context;
+            _userManager = userManager;
+        }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> TestAsync()
+        {
+            var existingUser = await _userManager.FindByEmailAsync("string@gmail.com");
+            if (existingUser == null)
+            {
+                return NotFound("User not found.");
+            }
+            await _context.AddAsync(new Deck
+            {
+                Name = "Test Deck",
+                UserId = existingUser.Id
+            });
+            await _context.SaveChangesAsync();
+            return Ok("Deck created successfully.");
         }
     }
 }

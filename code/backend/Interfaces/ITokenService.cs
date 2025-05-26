@@ -2,8 +2,8 @@
 {
     public interface ITokenService
     {
-        Task<AuthResponseDto> GenerateTokensAsync(IdentityUser user);
-        Task<AuthResponseDto?> RefreshTokenAsync(IdentityUser user, string refreshToken);
-        Task<bool> RevokeRefreshTokenAsync(IdentityUser user, string refreshToken);
+        Task<AuthenticatedResponseDto> GenerateTokensAsync(ApplicationUser user);
+        Task<AuthenticatedResponseDto?> RefreshTokenAsync(ApplicationUser user, string refreshToken);
+        Task<bool> RevokeRefreshTokenAsync(ApplicationUser user, string refreshToken);
     }
 }

@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="MappingProfiles\" />
-    <Folder Include="Entities\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 
