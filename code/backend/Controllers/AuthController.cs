@@ -4,17 +4,17 @@
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
 
-        public AuthController(UserManager<IdentityUser> userManager, ITokenService tokenService)
+        public AuthController(UserManager<ApplicationUser> userManager, ITokenService tokenService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto registerDto)
+        public async Task<ActionResult<AuthenticatedResponseDto>> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
             {
@@ -32,7 +32,7 @@
                 });
             }
 
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = registerDto.Email,
                 Email = registerDto.Email,
@@ -54,7 +54,7 @@
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<AuthenticatedResponseDto>> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
             {
@@ -89,7 +89,7 @@
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+        public async Task<ActionResult<AuthenticatedResponseDto>> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
         {
             if (!ModelState.IsValid)
             {

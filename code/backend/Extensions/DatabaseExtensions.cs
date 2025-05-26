@@ -11,7 +11,7 @@
             });
 
             // Configure Identity
-            services.AddIdentityCore<IdentityUser>(options =>
+            services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
                 options.Password.RequireDigit = true;

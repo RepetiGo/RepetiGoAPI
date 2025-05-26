@@ -19,9 +19,9 @@ namespace backend.Services
             _cache = cache;
         }
 
-        public async Task<AuthResponseDto> GenerateTokensAsync(IdentityUser user)
+        public async Task<AuthenticatedResponseDto> GenerateTokensAsync(ApplicationUser user)
         {
-            return new AuthResponseDto
+            return new AuthenticatedResponseDto
             {
                 UserId = user.Id,
                 Email = user.Email!,
@@ -30,7 +30,7 @@ namespace backend.Services
             };
         }
 
-        public async Task<AuthResponseDto?> RefreshTokenAsync(IdentityUser user, string refreshToken)
+        public async Task<AuthenticatedResponseDto?> RefreshTokenAsync(ApplicationUser user, string refreshToken)
         {
             var cachedUserId = await _cache.GetStringAsync(refreshToken);
             if (string.IsNullOrEmpty(cachedUserId) || cachedUserId != user.Id)
@@ -42,7 +42,7 @@ namespace backend.Services
             return await GenerateTokensAsync(user);
         }
 
-        public async Task<bool> RevokeRefreshTokenAsync(IdentityUser user, string refreshToken)
+        public async Task<bool> RevokeRefreshTokenAsync(ApplicationUser user, string refreshToken)
         {
             var cachedUserId = await _cache.GetStringAsync(refreshToken);
             if (string.IsNullOrEmpty(cachedUserId) || cachedUserId != user.Id)
@@ -53,7 +53,7 @@ namespace backend.Services
             return true;
         }
 
-        private string GenerateAccessToken(IdentityUser user)
+        private string GenerateAccessToken(ApplicationUser user)
         {
             var claims = new List<Claim>
             {
@@ -77,7 +77,7 @@ namespace backend.Services
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<string> GenerateRefreshToken(IdentityUser user)
+        private async Task<string> GenerateRefreshToken(ApplicationUser user)
         {
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
