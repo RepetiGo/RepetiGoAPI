@@ -158,7 +158,7 @@ namespace backend.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("backend.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("backend.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -229,7 +229,7 @@ namespace backend.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("backend.Entities.Card", b =>
+            modelBuilder.Entity("backend.Models.Card", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -270,7 +270,7 @@ namespace backend.Data.Migrations
                     b.ToTable("Cards");
                 });
 
-            modelBuilder.Entity("backend.Entities.Deck", b =>
+            modelBuilder.Entity("backend.Models.Deck", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -300,7 +300,7 @@ namespace backend.Data.Migrations
                     b.ToTable("Decks");
                 });
 
-            modelBuilder.Entity("backend.Entities.Review", b =>
+            modelBuilder.Entity("backend.Models.Review", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -330,7 +330,7 @@ namespace backend.Data.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("backend.Entities.Setting", b =>
+            modelBuilder.Entity("backend.Models.Setting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -375,7 +375,7 @@ namespace backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("backend.Entities.ApplicationUser", null)
+                    b.HasOne("backend.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -384,7 +384,7 @@ namespace backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("backend.Entities.ApplicationUser", null)
+                    b.HasOne("backend.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -399,7 +399,7 @@ namespace backend.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Entities.ApplicationUser", null)
+                    b.HasOne("backend.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -408,16 +408,16 @@ namespace backend.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("backend.Entities.ApplicationUser", null)
+                    b.HasOne("backend.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("backend.Entities.Card", b =>
+            modelBuilder.Entity("backend.Models.Card", b =>
                 {
-                    b.HasOne("backend.Entities.Deck", "Deck")
+                    b.HasOne("backend.Models.Deck", "Deck")
                         .WithMany("Cards")
                         .HasForeignKey("DeckId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -426,9 +426,9 @@ namespace backend.Data.Migrations
                     b.Navigation("Deck");
                 });
 
-            modelBuilder.Entity("backend.Entities.Deck", b =>
+            modelBuilder.Entity("backend.Models.Deck", b =>
                 {
-                    b.HasOne("backend.Entities.ApplicationUser", "User")
+                    b.HasOne("backend.Models.ApplicationUser", "User")
                         .WithMany("Decks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -437,9 +437,9 @@ namespace backend.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("backend.Entities.Review", b =>
+            modelBuilder.Entity("backend.Models.Review", b =>
                 {
-                    b.HasOne("backend.Entities.Card", "Card")
+                    b.HasOne("backend.Models.Card", "Card")
                         .WithMany("Reviews")
                         .HasForeignKey("CardId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -448,9 +448,9 @@ namespace backend.Data.Migrations
                     b.Navigation("Card");
                 });
 
-            modelBuilder.Entity("backend.Entities.Setting", b =>
+            modelBuilder.Entity("backend.Models.Setting", b =>
                 {
-                    b.HasOne("backend.Entities.ApplicationUser", "User")
+                    b.HasOne("backend.Models.ApplicationUser", "User")
                         .WithMany("Settings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -459,19 +459,19 @@ namespace backend.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("backend.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("backend.Models.ApplicationUser", b =>
                 {
                     b.Navigation("Decks");
 
                     b.Navigation("Settings");
                 });
 
-            modelBuilder.Entity("backend.Entities.Card", b =>
+            modelBuilder.Entity("backend.Models.Card", b =>
                 {
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("backend.Entities.Deck", b =>
+            modelBuilder.Entity("backend.Models.Deck", b =>
                 {
                     b.Navigation("Cards");
                 });

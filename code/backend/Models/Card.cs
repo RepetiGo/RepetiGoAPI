@@ -1,5 +1,5 @@
 ﻿
-namespace backend.Entities
+namespace backend.Models
 {
     public class Card
     {
