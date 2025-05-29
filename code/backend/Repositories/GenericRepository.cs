@@ -55,6 +55,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public virtual async Task Delete(object id)
     {
         var entityToDelete = await _dbSet.FindAsync(id);
+
+        if (entityToDelete is null)
+        {
+            throw new ArgumentException($"Entity with id {id} not found.", nameof(id));
+        }
+
         Delete(entityToDelete);
     }
 
