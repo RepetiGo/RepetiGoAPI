@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250526160244_AddCoreTables")]
-    partial class AddCoreTables
+    [Migration("20250529155834_UpdateSnapshot")]
+    partial class UpdateSnapshot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -96,7 +96,7 @@
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByIdAsync(refreshTokenDto.UserId);
+            var user = await _userManager.FindByEmailAsync(refreshTokenDto.Email);
 
             if (user is null)
             {

@@ -1,13 +1,16 @@
-﻿namespace backend.Entities
+﻿namespace backend.Models
 {
-    public class Deck
+    public class Setting
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(100)]
-        public string Name { get; set; } = string.Empty;
+        [MaxLength(50)]
+        public string Key { get; set; } = string.Empty;
+
+        [Required]
+        public float Value { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -17,6 +20,5 @@
 
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; } = null!;
-        public ICollection<Card> Cards { get; set; } = new List<Card>();
     }
 }
