@@ -25,7 +25,7 @@ namespace backend.Services
         {
             return new AuthenticatedResponseDto
             {
-                UserId = user.Id,
+                Id = user.Id,
                 Email = user.Email!,
                 AccessToken = GenerateAccessToken(user),
                 RefreshToken = await GenerateRefreshToken(user)
@@ -34,14 +34,9 @@ namespace backend.Services
 
         public async Task<AuthenticatedResponseDto?> RefreshTokenAsync(ApplicationUser user, string refreshToken)
         {
-            var cachedUserId = await _cache.GetStringAsync(refreshToken);
-            if (string.IsNullOrEmpty(cachedUserId) || cachedUserId != user.Id)
-            {
-                return null;
-            }
+            var isRevoked = await RevokeRefreshTokenAsync(user, refreshToken);
 
-            await _cache.RemoveAsync(refreshToken);
-            return await GenerateTokensAsync(user);
+            return isRevoked ? await GenerateTokensAsync(user) : null;
         }
 
         public async Task<bool> RevokeRefreshTokenAsync(ApplicationUser user, string refreshToken)
@@ -59,9 +54,8 @@ namespace backend.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id)
             };
 
             var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);

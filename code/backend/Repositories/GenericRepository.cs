@@ -16,6 +16,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     }
     public virtual async Task AddAsync(T entity)
     {
+        // mark the entity state as Added state
         await _dbSet.AddAsync(entity);
     }
 
@@ -31,9 +32,9 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             query = query.Where(filter);
         }
 
-        if (includeProperties is not null)
+        if (!string.IsNullOrEmpty(includeProperties))
         {
-            foreach (var includeProperty in includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries))
+            foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
             }
@@ -52,34 +53,64 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await _dbSet.FindAsync(id);
     }
 
-    public virtual async Task Delete(object id)
+    public virtual Task UpdateAsync(T entity)
+    {
+        // mark the entity state as Unchanged state first
+        _dbSet.Attach(entity);
+
+        // set the state to Modified
+        _context.Entry(entity).State = EntityState.Modified;
+        return Task.CompletedTask;
+    }
+
+    public virtual async Task<bool> TryDeleteAsync(object id)
     {
         var entityToDelete = await _dbSet.FindAsync(id);
 
         if (entityToDelete is null)
         {
-            throw new ArgumentException($"Entity with id {id} not found.", nameof(id));
+            return false;
         }
 
-        Delete(entityToDelete);
+        TryDeleteAsync(entityToDelete);
+
+        return true;
     }
 
-    public virtual void Delete(T entity)
+    public virtual void TryDeleteAsync(T entity)
     {
         if (_context.Entry(entity).State == EntityState.Detached)
         {
+            // mark the entity state as Unchanged state first
             _dbSet.Attach(entity);
         }
-        _dbSet.Remove(entity);
-    }
 
-    public virtual void Update(T entity)
-    {
-        _dbSet.Update(entity);
+        // mark the entity state as Deleted state
+        _dbSet.Remove(entity);
     }
 
     public virtual async Task SaveAsync()
     {
         await _context.SaveChangesAsync();
+    }
+
+    private bool _disposed = false;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            _disposed = true;
+        }
+    }
+
+    public virtual void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }
