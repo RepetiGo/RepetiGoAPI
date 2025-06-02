@@ -1,4 +1,8 @@
-﻿namespace backend.Controllers
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
+
+namespace backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -6,11 +10,13 @@
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly IMapper _mapper;
 
-        public AuthController(UserManager<ApplicationUser> userManager, ITokenService tokenService)
+        public AuthController(UserManager<ApplicationUser> userManager, ITokenService tokenService, IMapper mapper)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
@@ -62,7 +68,6 @@
             }
 
             var user = await _userManager.FindByEmailAsync(loginDto.Email);
-
             if (user is null)
             {
                 return Unauthorized(new ResponseErrorDto
@@ -74,7 +79,6 @@
             }
 
             var isValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
-
             if (!isValid)
             {
                 return Unauthorized(new ResponseErrorDto
@@ -96,8 +100,7 @@
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByEmailAsync(refreshTokenDto.Email);
-
+            var user = await _userManager.FindByIdAsync(refreshTokenDto.Id);
             if (user is null)
             {
                 return Unauthorized(new ResponseErrorDto
@@ -109,7 +112,6 @@
             }
 
             var tokens = await _tokenService.RefreshTokenAsync(user, refreshTokenDto.RefreshToken);
-
             if (tokens is null)
             {
                 return Unauthorized(new ResponseErrorDto
@@ -123,6 +125,7 @@
             return Ok(tokens);
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] LogoutDTo logoutDto)
         {
@@ -131,8 +134,18 @@
                 return BadRequest(ModelState);
             }
 
-            var user = await _userManager.FindByIdAsync(logoutDto.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ResponseErrorDto
+                {
+                    StatusCode = HttpStatusCode.Unauthorized,
+                    Message = "User not authenticated",
+                    Error = "Unauthorized"
+                });
+            }
 
+            var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
                 return BadRequest(new ResponseErrorDto
@@ -144,7 +157,6 @@
             }
 
             var result = await _tokenService.RevokeRefreshTokenAsync(user, logoutDto.RefreshToken);
-
             if (!result)
             {
                 return BadRequest(new ResponseErrorDto
@@ -156,6 +168,37 @@
             }
 
             return Ok(new { Message = "Logged out successfully" });
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<ActionResult<ApplicationUser>> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ResponseErrorDto
+                {
+                    StatusCode = HttpStatusCode.Unauthorized,
+                    Message = "User not authenticated",
+                    Error = "Unauthorized"
+                });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return NotFound(new ResponseErrorDto
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "User not found",
+                    Error = "Not Found"
+                });
+            }
+
+            var userDto = _mapper.Map<ProfileDto>(user);
+
+            return Ok(userDto);
         }
     }
 }

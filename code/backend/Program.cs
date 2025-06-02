@@ -8,15 +8,18 @@ namespace backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            var policyName = builder.Services.AddCorsServices(builder.Configuration);
+            var policyName = builder.Services.AddCorsService(builder.Configuration);
             builder.Services.AddControllers();
             builder.Services.AddOpenApi(options =>
             {
                 options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             });
-            builder.Services.AddDatabaseServices(builder.Configuration);
-            builder.Services.AddAuthServices(builder.Configuration);
-            builder.Services.AddCacheServices(builder.Configuration);
+            builder.Services.AddDatabaseService(builder.Configuration);
+            builder.Services.AddIdentityService();
+            builder.Services.AddAuthenticationService(builder.Configuration);
+            builder.Services.AddCacheService(builder.Configuration);
+            builder.Services.AddAutoMapperService();
+            builder.Services.AddJsonService();
 
             builder.Services.AddSingleton<ITokenService, TokenService>();
 
