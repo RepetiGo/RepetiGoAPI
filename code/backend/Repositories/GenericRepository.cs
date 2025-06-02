@@ -66,18 +66,17 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public virtual async Task<bool> TryDeleteAsync(object id)
     {
         var entityToDelete = await _dbSet.FindAsync(id);
-
         if (entityToDelete is null)
         {
             return false;
         }
 
-        TryDeleteAsync(entityToDelete);
+        await TryDeleteAsync(entityToDelete);
 
         return true;
     }
 
-    public virtual void TryDeleteAsync(T entity)
+    public virtual Task TryDeleteAsync(T entity)
     {
         if (_context.Entry(entity).State == EntityState.Detached)
         {
@@ -87,6 +86,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
         // mark the entity state as Deleted state
         _dbSet.Remove(entity);
+        return Task.CompletedTask;
     }
 
     public virtual async Task SaveAsync()
