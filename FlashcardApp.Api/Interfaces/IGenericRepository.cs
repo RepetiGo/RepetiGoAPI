@@ -9,7 +9,7 @@ namespace FlashcardApp.Api.Interfaces
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "",
-            PaginationQuery? paginationQuery = default
+            PaginationQuery? paginationQuery = null
         );
         Task<T?> GetByIdAsync(int id);
         Task<bool> TryDeleteAsync(int id);

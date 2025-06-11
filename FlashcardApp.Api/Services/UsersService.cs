@@ -18,16 +18,14 @@ namespace FlashcardApp.Api.Services
         private readonly IDistributedCache _cache;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<UsersService> _logger;
         private readonly IMapper _mapper;
 
-        public UsersService(IConfiguration configuration, IDistributedCache cache, UserManager<ApplicationUser> userManager, ILogger<UsersService> logger, IMapper mapper)
+        public UsersService(IConfiguration configuration, IDistributedCache cache, UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             _configuration = configuration;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found")));
             _cache = cache;
             _userManager = userManager;
-            _logger = logger;
             _mapper = mapper;
         }
 
@@ -154,7 +152,6 @@ namespace FlashcardApp.Api.Services
         public async Task<ServiceResult<ProfileResponseDto>> GetProfile(ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation("User ID from claims: {UserId}", userId);
             if (string.IsNullOrEmpty(userId))
             {
                 return ServiceResult<ProfileResponseDto>.Failure(

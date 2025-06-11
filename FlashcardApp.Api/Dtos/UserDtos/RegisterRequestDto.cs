@@ -2,13 +2,15 @@
 {
     public class RegisterRequestDto
     {
-        [Required]
         [EmailAddress]
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
-        [DataType(DataType.Password)]
         [MinLength(8)]
+        [Display(Name = "Password")]
+        [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = string.Empty;
     }
 }

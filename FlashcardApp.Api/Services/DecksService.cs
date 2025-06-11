@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResult<ICollection<DeckResponseDto>>> GetDecksByUserIdAsync(PaginationQuery paginationQuery, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ICollection<DeckResponseDto>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -144,6 +144,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
+            _mapper.Map(updateDeckRequestDto, deck);
             await _unitOfWork.DecksRepository.UpdateAsync(deck);
             await _unitOfWork.SaveAsync();
 
@@ -151,7 +152,7 @@ namespace FlashcardApp.Api.Services
             if (updatedDeck is null)
             {
                 return ServiceResult<DeckResponseDto>.Failure(
-                    "Failed to update deck",
+                    "Failed to retrieve updated deck",
                     HttpStatusCode.InternalServerError
                 );
             }
