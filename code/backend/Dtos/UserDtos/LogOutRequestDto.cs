@@ -1,6 +1,6 @@
-﻿namespace backend.Dtos.AuthDtos
+﻿namespace backend.Dtos.UserDtos
 {
-    public class LogoutDTo
+    public class LogOutRequestDto
     {
         [Required]
         public string RefreshToken { get; set; } = string.Empty;

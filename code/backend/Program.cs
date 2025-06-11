@@ -1,4 +1,3 @@
-using backend.Extensions;
 
 namespace backend
 {
@@ -21,7 +20,12 @@ namespace backend
             builder.Services.AddAutoMapperService();
             builder.Services.AddJsonService();
 
-            builder.Services.AddSingleton<ITokenService, TokenService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
+            builder.Services.AddScoped<IDecksService, DecksService>();
+            builder.Services.AddScoped<ICardsService, CardsService>();
+            builder.Services.AddScoped<IReviewsService, ReviewsService>();
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

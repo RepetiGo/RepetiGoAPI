@@ -1,10 +1,11 @@
-﻿namespace backend.Dtos.AuthDtos
+﻿namespace backend.Dtos.UserDtos
 {
-    public class LoginDto
+    public class LogInRequestDto
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
+
         [Required]
         [DataType(DataType.Password)]
         [MinLength(8)]

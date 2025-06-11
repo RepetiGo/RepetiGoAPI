@@ -1,31 +1,30 @@
-using System;
-
-namespace backend.Helpers;
-
-public class ServiceResult<T>
+namespace backend.Helpers
 {
-    public bool IsSuccess { get; set; }
-    public T? Data { get; set; }
-    public string? ErrorMessage { get; set; }
-    public HttpStatusCode StatusCode { get; set; }
-
-    public static ServiceResult<T> Success(T data, HttpStatusCode statusCode = HttpStatusCode.OK)
+    public class ServiceResult<T>
     {
-        return new ServiceResult<T>
-        {
-            IsSuccess = true,
-            Data = data,
-            StatusCode = statusCode
-        };
-    }
+        public bool IsSuccess { get; set; }
+        public T? Data { get; set; }
+        public string? ErrorMessage { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
 
-    public static ServiceResult<T> Failure(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-    {
-        return new ServiceResult<T>
+        public static ServiceResult<T> Success(T data, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
-            IsSuccess = false,
-            ErrorMessage = errorMessage,
-            StatusCode = statusCode
-        };
+            return new ServiceResult<T>
+            {
+                IsSuccess = true,
+                Data = data,
+                StatusCode = statusCode
+            };
+        }
+
+        public static ServiceResult<T> Failure(string errorMessage, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+        {
+            return new ServiceResult<T>
+            {
+                IsSuccess = false,
+                ErrorMessage = errorMessage,
+                StatusCode = statusCode
+            };
+        }
     }
 }

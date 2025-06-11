@@ -1,12 +1,14 @@
-using System;
+using backend.Interfaces.Repositories;
 
-namespace backend.Interfaces;
-
-public interface IUnitOfWork : IDisposable
+namespace backend.Interfaces
 {
-    UserManager<ApplicationUser> Users { get; }
-    Task<int> SaveChangesAsync();
-    Task BeginTransactionAsync();
-    Task CommitTransactionAsync();
-    Task RollbackTransactionAsync();
+    public interface IUnitOfWork : IDisposable
+    {
+        IGenericRepository<Deck> DecksRepository { get; }
+        IGenericRepository<Card> CardsRepository { get; }
+        IGenericRepository<Review> ReviewsRepository { get; }
+        IGenericRepository<Setting> SettingsRepository { get; }
+
+        Task<int> SaveAsync();
+    }
 }

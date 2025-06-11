@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 
-namespace backend.MappingProfiles;
+using backend.Dtos.UserDtos;
 
-public class UserMappingProfile : Profile
+namespace backend.MappingProfiles
 {
-    public UserMappingProfile()
+    public class UserMappingProfile : Profile
     {
-        CreateMap<ApplicationUser, ProfileDto>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+        public UserMappingProfile()
+        {
+            CreateMap<ApplicationUser, ProfileResponseDto>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+        }
     }
 }
