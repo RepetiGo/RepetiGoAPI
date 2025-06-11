@@ -35,3 +35,11 @@
     ```bash
     dotnet ef database update
     ```
+
+## Todo
+- [ ] Fix filters and sorting
+- [ ] Add exception handling middleware
+- [ ] Add request logging middleware
+- [ ] Add Rate limiting for API endpoints
+- [ ] Use FluentValidation for validation
+- [ ] Add Retry policy for API endpoints

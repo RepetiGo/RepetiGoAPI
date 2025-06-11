@@ -18,7 +18,7 @@ namespace FlashcardApp.Api.Repositories
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "",
-            PaginationQuery? paginationQuery = default
+            PaginationQuery? paginationQuery = null
         )
         {
             IQueryable<T> query = _dbSet;
@@ -45,11 +45,7 @@ namespace FlashcardApp.Api.Repositories
             }
 
             // Apply pagination
-            paginationQuery ??= new PaginationQuery
-            {
-                PageNumber = 1,
-                PageSize = 10
-            };
+            paginationQuery ??= new PaginationQuery();
             query = query.Skip((paginationQuery.PageNumber - 1) * paginationQuery.PageSize)
                          .Take(paginationQuery.PageSize);
 
@@ -69,11 +65,8 @@ namespace FlashcardApp.Api.Repositories
 
         public virtual Task UpdateAsync(T entity)
         {
-            // mark the entity state as Unchanged state first
-            _dbSet.Attach(entity);
-
-            // set the state to Modified
-            _context.Entry(entity).State = EntityState.Modified;
+            // update the entity as Modified
+            _dbSet.Update(entity);
             return Task.CompletedTask;
         }
 
@@ -92,12 +85,6 @@ namespace FlashcardApp.Api.Repositories
 
         public virtual Task TryDeleteAsync(T entity)
         {
-            if (_context.Entry(entity).State == EntityState.Detached)
-            {
-                // mark the entity state as Unchanged state first
-                _dbSet.Attach(entity);
-            }
-
             // mark the entity state as Deleted state
             _dbSet.Remove(entity);
             return Task.CompletedTask;

@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ICollection<DeckResponseDto>>> GetDecks([FromQuery] PaginationQuery paginationQuery)
+        public async Task<ActionResult<ICollection<DeckResponseDto>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {

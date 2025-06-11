@@ -1,6 +1,3 @@
-using FlashcardApp.Api.Repositories;
-using FlashcardApp.Api.Services;
-
 namespace FlashcardApp.Api
 {
     public class Program

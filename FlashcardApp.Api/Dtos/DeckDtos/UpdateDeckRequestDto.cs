@@ -4,8 +4,9 @@
     {
         [MinLength(1)]
         [MaxLength(100)]
+        [RegularExpression(@"^[a-zA-Z0-9\s]+$", ErrorMessage = "Deck name must contain only letters, numbers, and spaces")]
         [Display(Name = "Deck Name")]
-        [StringLength(100, ErrorMessage = "Deck name cannot exceed 100 characters.")]
-        public string? Name { get; set; }
+        [Required(ErrorMessage = "Deck name is required")]
+        public string Name { get; set; } = string.Empty;
     }
 }
