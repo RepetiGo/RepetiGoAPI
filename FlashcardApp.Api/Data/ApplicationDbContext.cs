@@ -10,7 +10,7 @@
         public DbSet<Deck> Decks { get; set; }
         public DbSet<Card> Cards { get; set; }
         public DbSet<Review> Reviews { get; set; }
-        public DbSet<Setting> Settings { get; set; }
+        public DbSet<Settings> Settings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,7 +30,7 @@
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ApplicationUser to Setting (One-to-Many)
+            // ApplicationUser to Settings (One-to-Many)
             builder.Entity<ApplicationUser>()
                 .HasMany(u => u.Settings)
                 .WithOne(s => s.User)
@@ -61,7 +61,7 @@
         private void OnBeforeSaving()
         {
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is Deck || e.Entity is Card || e.Entity is Review || e.Entity is Setting || e.Entity is ApplicationUser);
+                .Where(e => e.Entity is Deck || e.Entity is Card || e.Entity is Review || e.Entity is Settings || e.Entity is ApplicationUser);
 
             foreach (var entry in entries)
             {

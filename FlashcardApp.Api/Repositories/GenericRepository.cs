@@ -18,8 +18,7 @@ namespace FlashcardApp.Api.Repositories
             Expression<Func<T, bool>>? filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
             string includeProperties = "",
-            PaginationQuery? paginationQuery = null
-        )
+            PaginationQuery? paginationQuery = null)
         {
             IQueryable<T> query = _dbSet;
 

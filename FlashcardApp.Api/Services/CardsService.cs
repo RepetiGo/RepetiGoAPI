@@ -48,8 +48,7 @@ namespace FlashcardApp.Api.Services
             var cards = await _unitOfWork.CardsRepository.GetAllAsync(
                 filter: c => c.DeckId == deckId,
                 orderBy: q => q.OrderBy(c => c.CreatedAt),
-                paginationQuery: paginationQuery
-            );
+                paginationQuery: paginationQuery);
 
             var cardDto = _mapper.Map<ICollection<CardResponseDto>>(cards);
 

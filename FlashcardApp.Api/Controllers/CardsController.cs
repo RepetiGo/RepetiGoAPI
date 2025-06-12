@@ -90,5 +90,11 @@ namespace FlashcardApp.Api.Controllers
             var result = await _cardsService.DeleteCardAsync(deckId, cardId, User);
             return result.ToActionResult();
         }
+
+        [HttpGet("test")]
+        public Task Test()
+        {
+            throw new NotImplementedException("This method is not implemented yet.");
+        }
     }
 }

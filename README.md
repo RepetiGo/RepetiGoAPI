@@ -1,18 +1,45 @@
-# FlashcardApp
+﻿# Documentation for the Flashcard.Api project
 
--   Project for the course "Introduction to Mobile Applications"
--   Topic: Flashcard
+## Run project
+1. Using Visual Studio (2022 or later):
 
-## Lecturers
+   - Open the solution file (`.sln`).
+   - Set the desired launch profile (e.g., `https` or `http`) in the toolbar.
+   - Press `F5` to run the project with debugging, or `Ctrl + F5` to run without debugging.
 
-| NAME      | EMAIL         |
-|-----------|---------------|
-| Nguyễn Tấn Toàn | toannt@uit.edu.vn |
+2. Using the .NET CLI:
 
-## Members
+	- Run the project `dotnet run`
+	- Run the project in https profile `dotnet run --launch-profile https`
+	- Run the project in hot reload mode `dotnet watch`
 
-| NAME      | GITHUB         | MSSV      |
-|-----------|---------------|-----------|
-| Lê Văn Bảo | [@lvb2104](https://github.com/lvb2104) | 23520112 |
-| Nguyễn Cao Vũ Phan | [@vuphan525](https://github.com/vuphan525) | 23521137 |
-| Lương Thuận Dương | [@LuongThuanDuong](https://github.com/LuongThuanDuong) | 23520349 |
+## Update database
+1. Using the Package Manager Console in Visual Studio:
+
+	- Create a new migration
+	```powershell
+	Add-Migration [name-of-migration] -OutputDir Data\Migrations
+	```
+
+	- Apply the migration to the database
+	```powershell
+	Update-Database
+	```
+2. Using the .NET CLI:
+
+    - Create a new migration
+    ```bash
+    dotnet ef migrations add [name-of-migration] --output-dir Data\Migrations
+    ```
+    - Apply the migration to the database
+    ```bash
+    dotnet ef database update
+    ```
+
+## Todo
+- [ ] Fix filters and sorting
+- [ ] Add exception handling middleware
+- [ ] Add request logging middleware
+- [ ] Add Rate limiting for API endpoints
+- [ ] Use FluentValidation for validation
+- [ ] Add Retry policy for API endpoints

@@ -3,7 +3,7 @@ using FlashcardApp.Api.Models;
 
 namespace FlashcardApp.Api.Repositories
 {
-    public class SettingsRepository : GenericRepository<Setting>, IGenericRepository<Setting>
+    public class SettingsRepository : GenericRepository<Settings>, IGenericRepository<Settings>
     {
         public SettingsRepository(ApplicationDbContext context) : base(context)
         {
