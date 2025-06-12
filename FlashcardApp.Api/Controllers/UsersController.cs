@@ -15,12 +15,13 @@ namespace FlashcardApp.Api.Controllers
             _usersService = tokenService;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<UserResponseDto>> Register([FromBody] RegisterRequestDto registerRequestDto)
+        public async Task<ActionResult<object>> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<UserResponseDto>.Failure(
+                return BadRequest(ServiceResult<object>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -30,7 +31,39 @@ namespace FlashcardApp.Api.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("log-in")]
+        [AllowAnonymous]
+        [HttpGet("confirm-email")]
+        public async Task<ActionResult<object>> ConfirmEmail(string userId, string token)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _usersService.ConfirmEmail(userId, token);
+            return result.ToActionResult();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("resend-confirmation-email/{email}")]
+        public async Task<ActionResult<object>> ResendConfirmationEmail([FromRoute] string email)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+            var result = await _usersService.ResendConfirmationEmail(email);
+            return result.ToActionResult();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
         public async Task<ActionResult<UserResponseDto>> LogIn([FromBody] LogInRequestDto logInRequestDto)
         {
             if (!ModelState.IsValid)
@@ -45,6 +78,7 @@ namespace FlashcardApp.Api.Controllers
             return result.ToActionResult();
         }
 
+        [AllowAnonymous]
         [HttpPost("refresh-token/{userId}")]
         public async Task<ActionResult<UserResponseDto>> RefreshToken([FromRoute] string userId, [FromBody] RefreshTokenRequestDto refreshTokenRequestDto)
         {
@@ -61,7 +95,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [Authorize]
-        [HttpPost("log-out")]
+        [HttpPost("logout")]
         public async Task<ActionResult<object>> LogOut([FromBody] LogOutRequestDto logOutRequestDto)
         {
             if (!ModelState.IsValid)

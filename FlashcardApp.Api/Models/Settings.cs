@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Models
 {
-    public class Setting
+    public class Settings
     {
         [Key]
         public int Id { get; set; }

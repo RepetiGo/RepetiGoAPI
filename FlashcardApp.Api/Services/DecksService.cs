@@ -41,8 +41,7 @@ namespace FlashcardApp.Api.Services
                 filter: d => d.UserId == userId,
                 orderBy: q => q.OrderBy(d => d.CreatedAt),
                 includeProperties: "Cards",
-                paginationQuery: paginationQuery
-            );
+                paginationQuery: paginationQuery);
 
             var deckDtos = _mapper.Map<ICollection<DeckResponseDto>>(decks);
 

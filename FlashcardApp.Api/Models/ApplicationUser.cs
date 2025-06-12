@@ -12,6 +12,6 @@
 
         public ICollection<Deck> Decks { get; set; } = new List<Deck>();
 
-        public ICollection<Setting> Settings { get; set; } = new List<Setting>();
+        public ICollection<Settings> Settings { get; set; } = new List<Settings>();
     }
 }

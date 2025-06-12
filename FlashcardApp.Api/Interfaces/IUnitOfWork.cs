@@ -5,7 +5,7 @@ namespace FlashcardApp.Api.Interfaces
         IGenericRepository<Deck> DecksRepository { get; }
         IGenericRepository<Card> CardsRepository { get; }
         IGenericRepository<Review> ReviewsRepository { get; }
-        IGenericRepository<Setting> SettingsRepository { get; }
+        IGenericRepository<Settings> SettingsRepository { get; }
 
         Task<int> SaveAsync();
     }

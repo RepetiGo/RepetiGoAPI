@@ -10,7 +10,7 @@
 
         private IGenericRepository<Review>? _reviewsRepository;
 
-        private IGenericRepository<Setting>? _settingsRepository;
+        private IGenericRepository<Settings>? _settingsRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -41,7 +41,7 @@
             }
         }
 
-        public IGenericRepository<Setting> SettingsRepository
+        public IGenericRepository<Settings> SettingsRepository
         {
             get
             {
