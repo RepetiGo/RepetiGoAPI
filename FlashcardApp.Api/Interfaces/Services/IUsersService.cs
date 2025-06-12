@@ -12,10 +12,5 @@ namespace FlashcardApp.Api.Interfaces.Services
         Task<ServiceResult<ProfileResponseDto>> GetProfile(ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<object>> ConfirmEmail(string userId, string token);
         Task<ServiceResult<object>> ResendConfirmationEmail(string email);
-
-        // Token management
-        Task<UserResponseDto> GenerateTokensAsync(ApplicationUser user);
-        Task<UserResponseDto?> RefreshTokenAsync(ApplicationUser user, string refreshToken);
-        Task<bool> RevokeRefreshTokenAsync(ApplicationUser user, string refreshToken);
     }
 }

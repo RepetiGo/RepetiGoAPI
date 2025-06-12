@@ -21,6 +21,7 @@ namespace FlashcardApp.Api
             var rateLimitPolicies = builder.Services.AddRateLimitingService();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+            // Register services
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IDecksService, DecksService>();
             builder.Services.AddScoped<ICardsService, CardsService>();
@@ -28,6 +29,7 @@ namespace FlashcardApp.Api
             builder.Services.AddScoped<ISettingsService, SettingsService>();
             builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ResponseTemplate>();
             builder.Services.AddExceptionHandlerService();
             builder.Services.AddHttpContextAccessor();
 

@@ -44,12 +44,19 @@ namespace FlashcardApp.Api.Controllers
             }
 
             var result = await _usersService.ConfirmEmail(userId, token);
-            return result.ToActionResult();
+            if (result.Data is null)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    result.ErrorMessage ?? "Email confirmation failed",
+                    result.StatusCode
+                ));
+            }
+            return Content(result.Data.ToString() ?? string.Empty, "text/html");
         }
 
         [AllowAnonymous]
-        [HttpGet("resend-confirmation-email/{email}")]
-        public async Task<ActionResult<object>> ResendConfirmationEmail([FromRoute] string email)
+        [HttpGet("resend-confirmation-email")]
+        public async Task<ActionResult<object>> ResendConfirmationEmail([FromQuery] string email)
         {
             if (!ModelState.IsValid)
             {
@@ -59,7 +66,14 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
             var result = await _usersService.ResendConfirmationEmail(email);
-            return result.ToActionResult();
+            if (result.Data is null)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    result.ErrorMessage ?? "Resend confirmation email failed",
+                    result.StatusCode
+                ));
+            }
+            return Content(result.Data.ToString() ?? string.Empty, "text/html");
         }
 
         [AllowAnonymous]
