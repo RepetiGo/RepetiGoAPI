@@ -103,7 +103,8 @@ namespace FlashcardApp.Api.Data.Migrations
 
                     b.Property<string>("BackText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -111,12 +112,13 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Property<int>("DeckId")
                         .HasColumnType("int");
 
+                    b.Property<double>("EasinessFactor")
+                        .HasColumnType("float");
+
                     b.Property<string>("FrontText")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IntervalDays")
-                        .HasColumnType("int");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("LearningStep")
                         .HasColumnType("int");
@@ -151,10 +153,17 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Ratings")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -162,6 +171,9 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Visibility")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -187,12 +199,6 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ReviewedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CardId");
@@ -200,7 +206,7 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.ToTable("Reviews");
                 });
 
-            modelBuilder.Entity("FlashcardApp.Api.Models.Setting", b =>
+            modelBuilder.Entity("FlashcardApp.Api.Models.Settings", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -211,10 +217,7 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FirstSuccessInterval")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LapseIntervalDays")
+                    b.Property<int>("GraduatingInterval")
                         .HasColumnType("int");
 
                     b.Property<string>("LearningSteps")
@@ -225,9 +228,6 @@ namespace FlashcardApp.Api.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("NewCardsPerDay")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SecondSuccessInterval")
                         .HasColumnType("int");
 
                     b.Property<double>("StartingEasinessFactor")
@@ -242,7 +242,8 @@ namespace FlashcardApp.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Settings");
                 });
@@ -413,11 +414,11 @@ namespace FlashcardApp.Api.Data.Migrations
                     b.Navigation("Card");
                 });
 
-            modelBuilder.Entity("FlashcardApp.Api.Models.Setting", b =>
+            modelBuilder.Entity("FlashcardApp.Api.Models.Settings", b =>
                 {
                     b.HasOne("FlashcardApp.Api.Models.ApplicationUser", "User")
-                        .WithMany("Settings")
-                        .HasForeignKey("UserId")
+                        .WithOne("Settings")
+                        .HasForeignKey("FlashcardApp.Api.Models.Settings", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

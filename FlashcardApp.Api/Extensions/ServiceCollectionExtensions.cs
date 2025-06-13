@@ -37,9 +37,28 @@ namespace FlashcardApp.Api.Extensions
         public static string AddCorsService(this IServiceCollection services, IConfiguration configuration)
         {
             // configure CORS policy
-            var origin = configuration.GetValue<string>("Frontend:Url") ?? throw new InvalidOperationException("Frontend URL not found in configuration.");
-            var policyName = "AllowSpecificOrigin";
+            var origin = configuration.GetValue<string>("Frontend:Url");
+            var policyName = string.Empty;
 
+            if (string.IsNullOrWhiteSpace(origin))
+            {
+                policyName = "AllowAnyOriginPolicy";
+                services.AddCors(options =>
+                {
+                    options.AddPolicy(policyName,
+                        policy =>
+                        {
+                            policy.AllowAnyHeader()
+                                  .AllowAnyMethod()
+                                  .AllowCredentials()
+                                  .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                        });
+                });
+
+                return policyName;
+            }
+
+            policyName = "AllowSpecificOrigin";
             services.AddCors(options =>
             {
                 options.AddPolicy(policyName,
@@ -48,8 +67,7 @@ namespace FlashcardApp.Api.Extensions
                         policy.AllowAnyHeader()
                               .AllowAnyMethod()
                               .AllowCredentials()
-                              //.WithOrigins(origin)
-                              .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                              .WithOrigins(origin); // Allow specific origin from configuration
                     });
             });
 

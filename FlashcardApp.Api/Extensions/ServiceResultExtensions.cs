@@ -1,18 +1,16 @@
-﻿using FlashcardApp.Api.Helpers;
-
-namespace FlashcardApp.Api.Extensions
+﻿namespace FlashcardApp.Api.Extensions
 {
     public static class ServiceResultExtensions
     {
-        public static ActionResult ToActionResult<T>(this ServiceResult<T> serviceResult)
+        public static ActionResult<ServiceResult<T>> ToActionResult<T>(this ServiceResult<T> serviceResult)
         {
             if (serviceResult.IsSuccess)
             {
                 return serviceResult.StatusCode switch
                 {
-                    HttpStatusCode.Created => new CreatedResult(string.Empty, serviceResult.Data),
+                    HttpStatusCode.Created => new CreatedResult(string.Empty, serviceResult),
                     HttpStatusCode.NoContent => new NoContentResult(),
-                    _ => new OkObjectResult(serviceResult.Data)
+                    _ => new OkObjectResult(serviceResult)
                 };
             }
 
@@ -22,6 +20,7 @@ namespace FlashcardApp.Api.Extensions
                 HttpStatusCode.Unauthorized => new UnauthorizedObjectResult(serviceResult),
                 HttpStatusCode.NotFound => new NotFoundObjectResult(serviceResult),
                 HttpStatusCode.Conflict => new ConflictObjectResult(serviceResult),
+                HttpStatusCode.Forbidden => new ForbidResult(),
                 _ => new ObjectResult(serviceResult) { StatusCode = (int)serviceResult.StatusCode }
             };
         }

@@ -30,11 +30,11 @@
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ApplicationUser to Settings (One-to-Many)
+            // ApplicationUser to Settings (One-to-One)
             builder.Entity<ApplicationUser>()
-                .HasMany(u => u.Settings)
+                .HasOne(u => u.Settings)
                 .WithOne(s => s.User)
-                .HasForeignKey(s => s.UserId)
+                .HasForeignKey<Settings>(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Deck to Card (One-to-Many)

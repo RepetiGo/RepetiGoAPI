@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ICollection<DeckResponseDto>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<DeckResponseDto>>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {
@@ -32,7 +32,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("{deckId:int}")]
-        public async Task<ActionResult<DeckResponseDto>> GetDeckById([FromRoute] int deckId)
+        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> GetDeckById([FromRoute] int deckId)
         {
             if (!ModelState.IsValid)
             {
@@ -47,7 +47,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<DeckResponseDto>> CreateDeck([FromBody] CreateDeckRequestDto createDeckRequestDto)
+        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> CreateDeck([FromBody] CreateDeckRequestDto createDeckRequestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPut("{deckId:int}")]
-        public async Task<ActionResult<DeckResponseDto>> UpdateDeck([FromRoute] int deckId, [FromBody] UpdateDeckRequestDto updateDeckRequestDto)
+        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> UpdateDeck([FromRoute] int deckId, [FromBody] UpdateDeckRequestDto updateDeckRequestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpDelete("{deckId:int}")]
-        public async Task<ActionResult<object>> DeleteDeck([FromRoute] int deckId)
+        public async Task<ActionResult<ServiceResult<object>>> DeleteDeck([FromRoute] int deckId)
         {
             if (!ModelState.IsValid)
             {
@@ -90,5 +90,9 @@ namespace FlashcardApp.Api.Controllers
             var result = await _decksService.DeleteDeckAsync(deckId, User);
             return result.ToActionResult();
         }
+
+        // <summary>
+        // PATCH /api/decks/{deckId}/sharing
+        // </summary>
     }
 }
