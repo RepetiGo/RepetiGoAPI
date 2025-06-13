@@ -43,3 +43,5 @@
 - [ ] Add Retry policy for API endpoints
 - [ ] Forgot password reset functionality
 - [ ] AI auto-generated flashcards
+- [ ] Add moving cards between decks functionality
+- [ ] Fix logic of reviewing cards

@@ -1,6 +1,4 @@
-﻿using FlashcardApp.Api.Dtos.DeckDtos;
-
-namespace FlashcardApp.Api.Dtos.CardDtos
+﻿namespace FlashcardApp.Api.Dtos.CardDtos
 {
     public class CardResponseDto
     {
@@ -14,8 +12,6 @@ namespace FlashcardApp.Api.Dtos.CardDtos
 
         public int Repetition { get; set; } = 0;
 
-        public int IntervalDays { get; set; } = 0;
-
         public CardStatus Status { get; set; } = CardStatus.New;
 
         public int LearningStep { get; set; } = 0;
@@ -27,7 +23,5 @@ namespace FlashcardApp.Api.Dtos.CardDtos
         // -------------- Navigation properties --------------
 
         public int DeckId { get; set; }
-
-        public DeckResponseDto Deck { get; set; } = null!;
     }
 }

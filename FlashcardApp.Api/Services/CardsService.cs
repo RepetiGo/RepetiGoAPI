@@ -10,11 +10,13 @@ namespace FlashcardApp.Api.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ISettingsService _settingsService;
 
-        public CardsService(IUnitOfWork unitOfWork, IMapper mapper)
+        public CardsService(IUnitOfWork unitOfWork, IMapper mapper, ISettingsService settingsService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _settingsService = settingsService;
         }
 
         public async Task<ServiceResult<ICollection<CardResponseDto>>> GetCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
@@ -125,8 +127,19 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
+            var settings = await _settingsService.GetSettingsByUserIdAsync(userId);
+            if (settings is null)
+            {
+                return ServiceResult<CardResponseDto>.Failure(
+                    "User settings not found",
+                    HttpStatusCode.NotFound
+                );
+            }
+
             var card = _mapper.Map<Card>(createCardDto);
+
             card.DeckId = deckId;
+            card.EasinessFactor = settings.StartingEasinessFactor;
             await _unitOfWork.CardsRepository.AddAsync(card);
             await _unitOfWork.SaveAsync();
 

@@ -1,12 +1,8 @@
-﻿namespace FlashcardApp.Api.Models
+﻿namespace FlashcardApp.Api.Dtos.ReviewDtos
 {
-    public class Review
+    public class ReviewResponseDto
     {
-        public int Id { get; set; }
-
         public ReviewRating Rating { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // -------------- Navigation properties --------------
 

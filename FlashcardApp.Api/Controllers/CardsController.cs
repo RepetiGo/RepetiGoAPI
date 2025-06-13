@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<ICollection<CardResponseDto>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponseDto>>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {
@@ -32,7 +32,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<CardResponseDto>> GetCardByIdAsync([FromRoute] int deckId, [FromRoute] int cardId)
+        public async Task<ActionResult<ServiceResult<CardResponseDto>>> GetCardByIdAsync([FromRoute] int deckId, [FromRoute] int cardId)
         {
             if (!ModelState.IsValid)
             {
@@ -47,7 +47,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<CardResponseDto>> CreateCardAsync([FromRoute] int deckId, [FromBody] CreateCardRequestDto createCardDto)
+        public async Task<ActionResult<ServiceResult<CardResponseDto>>> CreateCardAsync([FromRoute] int deckId, [FromBody] CreateCardRequestDto createCardDto)
         {
             if (!ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPut("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<CardResponseDto>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] UpdateCardRequestDto updateCardRequestDto)
+        public async Task<ActionResult<ServiceResult<CardResponseDto>>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] UpdateCardRequestDto updateCardRequestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpDelete("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<object>> DeleteCardAsync([FromRoute] int deckId, [FromRoute] int cardId)
+        public async Task<ActionResult<ServiceResult<object>>> DeleteCardAsync([FromRoute] int deckId, [FromRoute] int cardId)
         {
             if (!ModelState.IsValid)
             {
@@ -89,12 +89,6 @@ namespace FlashcardApp.Api.Controllers
 
             var result = await _cardsService.DeleteCardAsync(deckId, cardId, User);
             return result.ToActionResult();
-        }
-
-        [HttpGet("test")]
-        public Task Test()
-        {
-            throw new NotImplementedException("This method is not implemented yet.");
         }
     }
 }
