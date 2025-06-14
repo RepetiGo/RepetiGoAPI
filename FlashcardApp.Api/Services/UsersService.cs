@@ -4,10 +4,10 @@ using System.Text;
 using System.Text.Encodings.Web;
 
 using AutoMapper;
-
+using FlashcardApp.Api.Common;
 using FlashcardApp.Api.Dtos.ProfileDtos;
 using FlashcardApp.Api.Dtos.UserDtos;
-
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -50,6 +50,8 @@ namespace FlashcardApp.Api.Services
             _urlHelperFactory = urlHelperFactory;
             _settingsService = settingsService;
         }
+        //Hashtable contains currently active password reset codes
+        public static ResetCode resetCode = new ResetCode();
 
         public async Task<ServiceResult<object>> Register(RegisterRequestDto registerRequestDto)
         {
@@ -433,6 +435,74 @@ namespace FlashcardApp.Api.Services
                 Values = value,
                 Protocol = httpContext.Request.Scheme
             });
+        }
+
+        public async Task<ServiceResult<object>> ForgotPassword (ForgotPasswordDto forgotPassword)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(forgotPassword.Email);
+            if (existingUser == null)
+            {
+                return ServiceResult<object>.Failure(
+                    "No user exists with this email.",
+                    HttpStatusCode.NotFound
+                );
+            }
+            var subject = "Password reset code";
+            string code = resetCode.GenerateCode(forgotPassword.Email);
+            await _emailSenderService.SendEmailAsync(forgotPassword.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
+
+            return ServiceResult<object>.Success(
+                new { Message = "Password reset code sent. Please check your email, including spam folder." },
+                HttpStatusCode.OK
+                );
+        }
+        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordDto resetPassword)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(resetPassword.Email);
+            if (existingUser == null)
+            {
+                return ServiceResult<object>.Failure(
+                    "No user exists with this email.",
+                    HttpStatusCode.NotFound
+                );
+            }
+            string code = resetPassword.Code;
+            if (string.IsNullOrEmpty(code) || !resetCode.ValidateResetCode(resetPassword.Email, code))
+            {
+                return ServiceResult<object>.Failure(
+                    "Reset code is wrong or has expired.",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+            string resetToken;
+            try
+            {
+                resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+            }
+            catch (Exception ex)
+            {
+                return ServiceResult<object>.Failure(
+                    "Failed to generate password reset token due to an internal error.",
+                    HttpStatusCode.InternalServerError
+                );
+            }
+            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.Password);
+            
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.FirstOrDefault();
+                return ServiceResult<object>.Failure
+                    (
+                    errors!.Description,
+                    HttpStatusCode.BadRequest
+                    );
+            }
+
+            return ServiceResult<object>.Success(
+            new { Message = "Password successfully changed." },
+            HttpStatusCode.OK
+            );
+            
         }
     }
 }

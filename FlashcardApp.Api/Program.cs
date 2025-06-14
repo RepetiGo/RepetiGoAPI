@@ -2,6 +2,7 @@ namespace FlashcardApp.Api
 {
     public class Program
     {
+        
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,8 @@ namespace FlashcardApp.Api
             builder.Services.AddScoped<ResponseTemplate>();
             builder.Services.AddExceptionHandlerService();
             builder.Services.AddHttpContextAccessor();
+            builder.Services.Configure<DataProtectionTokenProviderOptions> (opt =>
+            opt.TokenLifespan = TimeSpan.FromHours(2));
 
             var app = builder.Build();
 
@@ -58,6 +61,8 @@ namespace FlashcardApp.Api
             app.MapControllers().RequireRateLimiting(rateLimitPolicies.Global);
 
             app.Run();
+            
+            
         }
     }
 }

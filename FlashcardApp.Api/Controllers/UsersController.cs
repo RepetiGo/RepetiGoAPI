@@ -108,6 +108,36 @@ namespace FlashcardApp.Api.Controllers
             return result.ToActionResult();
         }
 
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<ActionResult<object>> ResetPassword([FromBody] ResetPasswordDto resetPasswordRequestDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+            var result = await _usersService.ResetPassword(resetPasswordRequestDto);
+            return result;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<ActionResult<object>> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword )
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<object>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+            var result = await _usersService.ForgotPassword(forgotPassword);
+            return result;
+        }
+
         [Authorize]
         [HttpPost("logout")]
         public async Task<ActionResult<ServiceResult<object>>> LogOut([FromBody] LogOutRequestDto logOutRequestDto)
