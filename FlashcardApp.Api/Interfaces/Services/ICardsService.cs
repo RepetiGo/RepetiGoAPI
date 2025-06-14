@@ -1,5 +1,4 @@
-﻿
-using FlashcardApp.Api.Dtos.CardDtos;
+﻿using FlashcardApp.Api.Dtos.CardDtos;
 
 namespace FlashcardApp.Api.Interfaces.Services
 {

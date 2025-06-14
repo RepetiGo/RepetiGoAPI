@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.UserDtos;
+using FlashcardApp.Api.Dtos.ProfileDtos;
 
 namespace FlashcardApp.Api.MappingProfiles
 {
@@ -10,8 +10,9 @@ namespace FlashcardApp.Api.MappingProfiles
         {
             CreateMap<ApplicationUser, ProfileResponseDto>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-                .ForMember(dest => dest.Decks, opt => opt.Ignore())
-                .ForMember(dest => dest.Settings, opt => opt.Ignore());
+                .ForMember(dest => dest.Decks, opt => opt.Ignore());
+
+            CreateMap<UpdateUsernameRequestDto, ApplicationUser>();
         }
     }
 }

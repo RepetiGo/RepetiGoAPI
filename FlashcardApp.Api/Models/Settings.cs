@@ -2,7 +2,6 @@
 {
     public class Settings
     {
-        [Key]
         public int Id { get; set; }
 
         // -------------- Daily Pacing Settings --------------
@@ -15,11 +14,7 @@
 
         public double StartingEasinessFactor { get; set; } = 2.5;
 
-        public int LapseIntervalDays { get; set; } = 1;
-
-        public int FirstSuccessInterval { get; set; } = 1;
-
-        public int SecondSuccessInterval { get; set; } = 6;
+        public int GraduatingInterval { get; set; } = 3;
 
         public string LearningSteps { get; set; } = "1m 10m";
 
@@ -29,10 +24,8 @@
 
         // -------------- Navigation properties --------------
 
-        [Required]
         public string UserId { get; set; } = string.Empty;
 
-        [ForeignKey("UserId")]
         public ApplicationUser User { get; set; } = null!;
     }
 }

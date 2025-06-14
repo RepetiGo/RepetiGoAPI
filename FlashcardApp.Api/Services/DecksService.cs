@@ -40,7 +40,6 @@ namespace FlashcardApp.Api.Services
             var decks = await _unitOfWork.DecksRepository.GetAllAsync(
                 filter: d => d.UserId == userId,
                 orderBy: q => q.OrderBy(d => d.CreatedAt),
-                includeProperties: "Cards",
                 paginationQuery: paginationQuery);
 
             var deckDtos = _mapper.Map<ICollection<DeckResponseDto>>(decks);
@@ -95,6 +94,8 @@ namespace FlashcardApp.Api.Services
             var deck = new Deck
             {
                 Name = createDeckDto.Name,
+                Description = createDeckDto.Description,
+                Visibility = createDeckDto.Visibility,
                 UserId = userId,
             };
 

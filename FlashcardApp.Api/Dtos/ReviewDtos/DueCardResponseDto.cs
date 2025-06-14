@@ -1,26 +1,22 @@
-﻿namespace FlashcardApp.Api.Models
+﻿namespace FlashcardApp.Api.Dtos.ReviewDtos
 {
-    public class Card
+    public class DueCardResponseDto
     {
         public int Id { get; set; }
 
-        [MaxLength(500)]
         public string FrontText { get; set; } = string.Empty;
 
-        [MaxLength(500)]
         public string BackText { get; set; } = string.Empty;
 
-        // -------------- Spaced Repetition System (SRS) properties --------------
+        public CardPreviewDto PreviewDto { get; set; } = new CardPreviewDto();
 
         public DateTime NextReview { get; set; } = DateTime.UtcNow;
 
         public int Repetition { get; set; } = 0;
 
-        public CardStatus Status { get; set; } = CardStatus.New;
-
-        public double EasinessFactor { get; set; } = 2.5;
-
         public int LearningStep { get; set; } = 0;
+
+        public CardStatus Status { get; set; } = CardStatus.New;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
@@ -29,9 +25,5 @@
         // -------------- Navigation properties --------------
 
         public int DeckId { get; set; }
-
-        public Deck Deck { get; set; } = null!;
-
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
