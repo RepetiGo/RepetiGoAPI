@@ -34,7 +34,7 @@ namespace FlashcardApp.Api.Common
             {
                 if (code == _codes[email].ToString())
                 {
-                    _codes.TryRemove(_codes[email], out _);
+                    _codes.TryRemove(email, out _);
                     return true;
                 }
             }
