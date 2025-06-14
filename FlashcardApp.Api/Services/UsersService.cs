@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 using AutoMapper;
 
 using FlashcardApp.Api.Dtos.UserDtos;
-
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -46,6 +46,8 @@ namespace FlashcardApp.Api.Services
             _responseTemplate = responseTemplate;
             _urlHelperFactory = urlHelperFactory;
         }
+        //Hashtable contains currently active password reset codes
+        public static ResetCode resetCode = new ResetCode();
 
         public async Task<ServiceResult<object>> Register(RegisterRequestDto registerRequestDto)
         {
@@ -380,6 +382,71 @@ namespace FlashcardApp.Api.Services
                 Values = value,
                 Protocol = httpContext.Request.Scheme
             });
+        }
+
+        public async Task<ServiceResult<object>> ForgotPassword (ForgotPasswordDto forgotPassword)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(forgotPassword.Email);
+            if (existingUser == null)
+            {
+                return ServiceResult<object>.Failure(
+                    "No user exists with this email.",
+                    HttpStatusCode.NotFound
+                );
+            }
+            var subject = "Password reset code";
+            string code = resetCode.GenerateCode(forgotPassword.Email);
+            await _emailSenderService.SendEmailAsync(forgotPassword.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
+
+            return ServiceResult<object>.Success(
+                new { Message = "Password reset code sent. Please check your email, including spam folder." },
+                HttpStatusCode.OK
+                );
+        }
+        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordDto resetPassword)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(resetPassword.Email);
+            if (existingUser == null)
+            {
+                return ServiceResult<object>.Failure(
+                    "No user exists with this email.",
+                    HttpStatusCode.NotFound
+                );
+            }
+            string code = resetPassword.code;
+            if (string.IsNullOrEmpty(code) || !resetCode.ValidateResetCode(resetPassword.Email, code))
+            {
+                return ServiceResult<object>.Failure(
+                    "Reset code is wrong.",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+            if (resetToken == null)
+            {
+                return ServiceResult<object>.Failure(
+                    "No user exists with this email.",
+                    HttpStatusCode.FailedDependency
+                );
+            }
+            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.ConfirmPassword);
+            
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.FirstOrDefault();
+                return ServiceResult<object>.Failure
+                    (
+                    errors.Description,
+                    HttpStatusCode.BadRequest
+                    );
+            }
+            else
+            {
+                return ServiceResult<object>.Success(
+                new { Message = "Password succesfully changed." },
+                HttpStatusCode.OK
+                );
+            }
         }
     }
 }
