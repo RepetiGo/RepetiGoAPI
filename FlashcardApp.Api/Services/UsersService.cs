@@ -474,12 +474,16 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.Unauthorized
                 );
             }
-            string resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
-            if (resetToken == null)
+            string resetToken;
+            try
+            {
+                resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+            }
+            catch (Exception ex)
             {
                 return ServiceResult<object>.Failure(
-                    "No user exists with this email.",
-                    HttpStatusCode.FailedDependency
+                    "Failed to generate password reset token due to an internal error.",
+                    HttpStatusCode.InternalServerError
                 );
             }
             var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.ConfirmPassword);
