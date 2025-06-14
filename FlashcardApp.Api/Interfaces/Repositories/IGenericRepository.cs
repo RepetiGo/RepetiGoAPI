@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace FlashcardApp.Api.Interfaces
+namespace FlashcardApp.Api.Interfaces.Repositories
 {
     public interface IGenericRepository<T> where T : class
     {

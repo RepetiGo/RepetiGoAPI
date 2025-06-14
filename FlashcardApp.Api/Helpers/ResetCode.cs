@@ -1,17 +1,19 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FlashcardApp.Api.Common
+namespace FlashcardApp.Api.Helpers
 {
     public class ResetCode
     {
-        private static ConcurrentDictionary<string, string> _codes = new ConcurrentDictionary<string, string>();
-        private static Random random = new Random();
+        private static readonly ConcurrentDictionary<string, string> _codes = new ConcurrentDictionary<string, string>();
+
         public static string RandomString(int length)
         {
+            var random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
         public string GenerateCode(string email)
         {
             string code = RandomString(8);
@@ -24,6 +26,7 @@ namespace FlashcardApp.Api.Common
             _ = Countdown(email, code);
             return code;
         }
+
         public bool ValidateResetCode(string email, string code)
         {
             if (email == null || code == null)
@@ -44,6 +47,7 @@ namespace FlashcardApp.Api.Common
             }
             return false;
         }
+
         public async Task Countdown(string email, string code)
         {
             await Task.Delay(new TimeSpan(0, 15, 0)).ContinueWith(t =>

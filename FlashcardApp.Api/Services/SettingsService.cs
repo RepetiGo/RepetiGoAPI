@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Services
+﻿using FlashcardApp.Api.Interfaces;
+
+namespace FlashcardApp.Api.Services
 {
     public class SettingsService : ISettingsService
     {
@@ -24,20 +26,6 @@
             await _unitOfWork.SettingsRepository.AddAsync(userSettings);
             await _unitOfWork.SaveAsync();
             return true;
-        }
-
-        public async Task<Settings?> GetSettingsByUserIdAsync(string userId)
-        {
-            if (string.IsNullOrEmpty(userId))
-            {
-                return null;
-            }
-
-            var settings = await _unitOfWork.SettingsRepository.GetAllAsync(
-                filter: s => s.UserId == userId);
-
-
-            return settings.FirstOrDefault();
         }
     }
 }

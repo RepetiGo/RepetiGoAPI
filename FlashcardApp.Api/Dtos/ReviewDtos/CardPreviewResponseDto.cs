@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.ReviewDtos
 {
-    public class CardPreviewDto
+    public class CardPreviewResponseDto
     {
         public int IntervalDaysOfAgain { get; set; }
 

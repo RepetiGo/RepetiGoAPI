@@ -110,7 +110,7 @@ namespace FlashcardApp.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("reset-password")]
-        public async Task<ActionResult<object>> ResetPassword([FromBody] ResetPasswordDto resetPasswordRequestDto)
+        public async Task<ActionResult<ServiceResult<object>>> ResetPassword([FromBody] ResetPasswordRequestDto resetPasswordRequestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -120,12 +120,12 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
             var result = await _usersService.ResetPassword(resetPasswordRequestDto);
-            return result;
+            return result.ToActionResult();
         }
 
         [AllowAnonymous]
         [HttpPost("forgot-password")]
-        public async Task<ActionResult<object>> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword )
+        public async Task<ActionResult<ServiceResult<object>>> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordRequestDto)
         {
             if (!ModelState.IsValid)
             {
@@ -134,8 +134,8 @@ namespace FlashcardApp.Api.Controllers
                     HttpStatusCode.BadRequest
                 ));
             }
-            var result = await _usersService.ForgotPassword(forgotPassword);
-            return result;
+            var result = await _usersService.ForgotPassword(forgotPasswordRequestDto);
+            return result.ToActionResult();
         }
 
         [Authorize]

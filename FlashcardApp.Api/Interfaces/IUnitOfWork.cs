@@ -1,11 +1,13 @@
+using FlashcardApp.Api.Interfaces.Repositories;
+
 namespace FlashcardApp.Api.Interfaces
 {
     public interface IUnitOfWork
     {
-        IGenericRepository<Deck> DecksRepository { get; }
-        IGenericRepository<Card> CardsRepository { get; }
-        IGenericRepository<Review> ReviewsRepository { get; }
-        IGenericRepository<Settings> SettingsRepository { get; }
+        IDecksRepository DecksRepository { get; }
+        ICardsRepository CardsRepository { get; }
+        IReviewsRepository ReviewsRepository { get; }
+        ISettingsRepository SettingsRepository { get; }
 
         Task<int> SaveAsync();
     }

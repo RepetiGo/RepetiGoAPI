@@ -1,23 +1,26 @@
-﻿namespace FlashcardApp.Api.Repositories
+﻿using FlashcardApp.Api.Interfaces;
+using FlashcardApp.Api.Interfaces.Repositories;
+
+namespace FlashcardApp.Api.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
 
-        private IGenericRepository<Deck>? _decksRepository;
+        private IDecksRepository? _decksRepository;
 
-        private IGenericRepository<Card>? _cardsRepository;
+        private ICardsRepository? _cardsRepository;
 
-        private IGenericRepository<Review>? _reviewsRepository;
+        private IReviewsRepository? _reviewsRepository;
 
-        private IGenericRepository<Settings>? _settingsRepository;
+        private ISettingsRepository? _settingsRepository;
 
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        public IGenericRepository<Deck> DecksRepository
+        public IDecksRepository DecksRepository
         {
             get
             {
@@ -25,7 +28,7 @@
             }
         }
 
-        public IGenericRepository<Card> CardsRepository
+        public ICardsRepository CardsRepository
         {
             get
             {
@@ -33,7 +36,7 @@
             }
         }
 
-        public IGenericRepository<Review> ReviewsRepository
+        public IReviewsRepository ReviewsRepository
         {
             get
             {
@@ -41,7 +44,7 @@
             }
         }
 
-        public IGenericRepository<Settings> SettingsRepository
+        public ISettingsRepository SettingsRepository
         {
             get
             {

@@ -3,6 +3,5 @@
     public interface ISettingsService
     {
         Task<bool> CreateUserSettings(string userId);
-        Task<Settings?> GetSettingsByUserIdAsync(string userId);
     }
 }

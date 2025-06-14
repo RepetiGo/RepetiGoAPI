@@ -3,6 +3,12 @@
     public class ApplicationUser : IdentityUser
     {
         [PersonalData]
+        public string AvatarUrl { get; set; } = string.Empty;
+
+        [PersonalData]
+        public string AvatarPublicId { get; set; } = string.Empty;
+
+        [PersonalData]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [PersonalData]

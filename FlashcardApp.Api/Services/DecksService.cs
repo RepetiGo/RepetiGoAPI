@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using FlashcardApp.Api.Dtos.DeckDtos;
+using FlashcardApp.Api.Interfaces;
 
 namespace FlashcardApp.Api.Services
 {

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 
@@ -37,12 +38,27 @@ namespace FlashcardApp.Api.Extensions
         public static string AddCorsService(this IServiceCollection services, IConfiguration configuration)
         {
             // configure CORS policy
-            var origin = configuration.GetValue<string>("Frontend:Url");
+            var origin = configuration.GetValue<string>("AllowedHosts");
             var policyName = string.Empty;
 
-            if (string.IsNullOrWhiteSpace(origin))
+            if (string.IsNullOrWhiteSpace(origin) || origin == "*")
             {
                 policyName = "AllowAnyOriginPolicy";
+                services.AddCors(options =>
+                {
+                    options.AddPolicy(policyName,
+                        policy =>
+                        {
+                            policy.AllowAnyHeader() // Allow any header in the request
+                                  .AllowAnyMethod() // Allow any HTTP method (GET, POST, PUT, DELETE, etc.)
+                                  .AllowCredentials() // Allow credentials for cookies, authorization headers, or TLS client certificates
+                                  .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                        });
+                });
+            }
+            else
+            {
+                policyName = "AllowSpecificOrigin";
                 services.AddCors(options =>
                 {
                     options.AddPolicy(policyName,
@@ -51,25 +67,10 @@ namespace FlashcardApp.Api.Extensions
                             policy.AllowAnyHeader()
                                   .AllowAnyMethod()
                                   .AllowCredentials()
-                                  .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                                  .WithOrigins(origin);
                         });
                 });
-
-                return policyName;
             }
-
-            policyName = "AllowSpecificOrigin";
-            services.AddCors(options =>
-            {
-                options.AddPolicy(policyName,
-                    policy =>
-                    {
-                        policy.AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials()
-                              .WithOrigins(origin); // Allow specific origin from configuration
-                    });
-            });
 
             return policyName;
         }
@@ -172,6 +173,42 @@ namespace FlashcardApp.Api.Extensions
         {
             // Register a global exception handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
+            return services;
+        }
+
+        public static IServiceCollection AddConfigurationService(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Configure application settings from configuration
+            services.AddOptions<ConnectionStringConfig>()
+                .Bind(configuration.GetSection(ConnectionStringConfig.SectionName))
+                .ValidateDataAnnotations();
+            services.AddOptions<JwtConfig>()
+                .Bind(configuration.GetSection(JwtConfig.SectionName))
+                .ValidateDataAnnotations();
+            services.AddOptions<AllowedHostsConfig>()
+                .Bind(configuration.GetSection(AllowedHostsConfig.SectionName))
+                .ValidateDataAnnotations();
+            services.AddOptions<EmailSettingsConfig>()
+                .Bind(configuration.GetSection(EmailSettingsConfig.SectionName))
+                .ValidateDataAnnotations();
+            services.AddOptions<CloudinaryConfig>()
+                .Bind(configuration.GetSection(CloudinaryConfig.SectionName))
+                .ValidateDataAnnotations();
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureFormOptions(this IServiceCollection services)
+        {
+            // Configure form options to allow larger file uploads
+            services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // Set limit to 10 MB
+                options.ValueLengthLimit = 100 * 1024; // Set value length limit to 100 KB
+                options.MultipartHeadersLengthLimit = 100 * 1024; // Set headers length limit to 100 KB
+                options.ValueCountLimit = int.MaxValue;
+            });
+
             return services;
         }
     }
