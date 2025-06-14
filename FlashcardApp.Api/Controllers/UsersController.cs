@@ -120,7 +120,7 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
             var result = await _usersService.ResetPassword(resetPasswordRequestDto);
-            return result.ToActionResult();
+            return result;
         }
 
         [AllowAnonymous]
@@ -135,7 +135,7 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
             var result = await _usersService.ForgotPassword(forgotPassword);
-            return result.ToActionResult();
+            return result;
         }
 
         [Authorize]

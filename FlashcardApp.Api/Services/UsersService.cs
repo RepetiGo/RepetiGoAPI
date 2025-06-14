@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 
 using AutoMapper;
-
+using FlashcardApp.Api.Common;
 using FlashcardApp.Api.Dtos.ProfileDtos;
 using FlashcardApp.Api.Dtos.UserDtos;
 using Microsoft.AspNetCore.Identity.Data;
@@ -466,11 +466,11 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.NotFound
                 );
             }
-            string code = resetPassword.code;
+            string code = resetPassword.Code;
             if (string.IsNullOrEmpty(code) || !resetCode.ValidateResetCode(resetPassword.Email, code))
             {
                 return ServiceResult<object>.Failure(
-                    "Reset code is wrong.",
+                    "Reset code is wrong or has expired.",
                     HttpStatusCode.Unauthorized
                 );
             }
@@ -493,17 +493,16 @@ namespace FlashcardApp.Api.Services
                 var errors = result.Errors.FirstOrDefault();
                 return ServiceResult<object>.Failure
                     (
-                    errors.Description,
+                    errors!.Description,
                     HttpStatusCode.BadRequest
                     );
             }
-            else
-            {
-                return ServiceResult<object>.Success(
-                new { Message = "Password succesfully changed." },
-                HttpStatusCode.OK
-                );
-            }
+
+            return ServiceResult<object>.Success(
+            new { Message = "Password succesfully changed." },
+            HttpStatusCode.OK
+            );
+            
         }
     }
 }
