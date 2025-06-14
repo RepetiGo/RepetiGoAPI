@@ -499,7 +499,7 @@ namespace FlashcardApp.Api.Services
             }
 
             return ServiceResult<object>.Success(
-            new { Message = "Password succesfully changed." },
+            new { Message = "Password successfully changed." },
             HttpStatusCode.OK
             );
             
