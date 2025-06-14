@@ -486,7 +486,7 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.InternalServerError
                 );
             }
-            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.ConfirmPassword);
+            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.Password);
             
             if (!result.Succeeded)
             {
