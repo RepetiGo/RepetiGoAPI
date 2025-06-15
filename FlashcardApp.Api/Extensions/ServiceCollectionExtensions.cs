@@ -3,15 +3,20 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FlashcardApp.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAuthenticationService(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAuthenticationService(this IServiceCollection services)
         {
+            using var serviceProvider = services.BuildServiceProvider();
+            var jwtConfig = serviceProvider.GetRequiredService<IOptions<JwtConfig>>().Value;
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
             {
@@ -24,9 +29,9 @@ namespace FlashcardApp.Api.Extensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.GetValue<string>("Jwt:Issuer") ?? throw new InvalidOperationException("Issuer not found"),
-                    ValidAudience = configuration.GetValue<string>("Jwt:Audience") ?? throw new InvalidOperationException("Audience not found"),
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found"))),
+                    ValidIssuer = jwtConfig.Issuer,
+                    ValidAudience = jwtConfig.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Secret)),
                     ClockSkew = TimeSpan.Zero
                 };
             });
@@ -34,15 +39,28 @@ namespace FlashcardApp.Api.Extensions
             return services;
         }
 
-        public static string AddCorsService(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCorsService(this IServiceCollection services, string policyName)
         {
             // configure CORS policy
-            var origin = configuration.GetValue<string>("Frontend:Url");
-            var policyName = string.Empty;
+            using var serviceProvider = services.BuildServiceProvider();
+            var clientConfig = serviceProvider.GetRequiredService<IOptions<ClientConfig>>().Value;
 
-            if (string.IsNullOrWhiteSpace(origin))
+            if (string.IsNullOrWhiteSpace(clientConfig.WebAppUrl) || clientConfig.WebAppUrl == "*")
             {
-                policyName = "AllowAnyOriginPolicy";
+                services.AddCors(options =>
+                {
+                    options.AddPolicy(policyName,
+                        policy =>
+                        {
+                            policy.AllowAnyHeader() // Allow any header in the request
+                                  .AllowAnyMethod() // Allow any HTTP method (GET, POST, PUT, DELETE, etc.)
+                                  .AllowCredentials() // Allow credentials for cookies, authorization headers, or TLS client certificates
+                                  .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                        });
+                });
+            }
+            else
+            {
                 services.AddCors(options =>
                 {
                     options.AddPolicy(policyName,
@@ -51,45 +69,36 @@ namespace FlashcardApp.Api.Extensions
                             policy.AllowAnyHeader()
                                   .AllowAnyMethod()
                                   .AllowCredentials()
-                                  .SetIsOriginAllowed(origin => true); // Allow any origin for development purposes
+                                  .WithOrigins(clientConfig.WebAppUrl);
                         });
                 });
-
-                return policyName;
             }
 
-            policyName = "AllowSpecificOrigin";
-            services.AddCors(options =>
-            {
-                options.AddPolicy(policyName,
-                    policy =>
-                    {
-                        policy.AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials()
-                              .WithOrigins(origin); // Allow specific origin from configuration
-                    });
-            });
-
-            return policyName;
+            return services;
         }
 
-        public static IServiceCollection AddCacheService(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCacheService(this IServiceCollection services)
         {
             // Configure distributed cache using Redis
+            using var serviceProvider = services.BuildServiceProvider();
+            var connectionStringConfig = serviceProvider.GetRequiredService<IOptions<ConnectionStringConfig>>().Value;
+
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = configuration.GetConnectionString("RedisConnection") ?? throw new InvalidOperationException("Redis connection string not found in configuration.");
+                options.Configuration = connectionStringConfig.RedisConnection;
             });
             return services;
         }
 
-        public static IServiceCollection AddDatabaseService(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDatabaseService(this IServiceCollection services)
         {
             // Configure Entity Framework
+            using var serviceProvider = services.BuildServiceProvider();
+            var connectionStringConfig = serviceProvider.GetRequiredService<IOptions<ConnectionStringConfig>>().Value;
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
+                options.UseSqlServer(connectionStringConfig.DefaultConnection);
             });
 
             return services;
@@ -172,6 +181,53 @@ namespace FlashcardApp.Api.Extensions
         {
             // Register a global exception handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
+            return services;
+        }
+
+        public static IServiceCollection AddConfigurationService(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Configure application settings from configuration
+            services.AddOptions<ConnectionStringConfig>()
+                .Bind(configuration.GetSection(ConnectionStringConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<JwtConfig>()
+                .Bind(configuration.GetSection(JwtConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<ClientConfig>()
+                .Bind(configuration.GetSection(ClientConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<EmailSettingsConfig>()
+                .Bind(configuration.GetSection(EmailSettingsConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<CloudinaryConfig>()
+                .Bind(configuration.GetSection(CloudinaryConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddOptions<OAuthConfig>()
+                .Bind(configuration.GetSection(OAuthConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureFormOptions(this IServiceCollection services)
+        {
+            // Configure form options to allow larger file uploads
+            services.Configure<FormOptions>(options =>
+            {
+                options.ValueCountLimit = 2048; // Maximum number of form values
+            });
+
             return services;
         }
     }

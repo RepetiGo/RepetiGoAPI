@@ -1,40 +1,44 @@
+using FlashcardApp.Api.Interfaces;
+
 namespace FlashcardApp.Api
 {
     public class Program
     {
-        
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var corsPolicyName = "AllowedHosts";
 
-            var policyName = builder.Services.AddCorsService(builder.Configuration);
+            // Configure services
             builder.Services.AddControllers();
-            builder.Services.AddOpenApi(options =>
-            {
-                options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-            });
-            builder.Services.AddDatabaseService(builder.Configuration);
-            builder.Services.AddIdentityService();
-            builder.Services.AddAuthenticationService(builder.Configuration);
-            builder.Services.AddCacheService(builder.Configuration);
-            builder.Services.AddAutoMapperService();
-            builder.Services.AddJsonService();
-            var rateLimitPolicies = builder.Services.AddRateLimitingService();
-            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            var (AiGeneration, Global) = builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>())
+                .AddConfigurationService(builder.Configuration)
+                .AddCorsService(corsPolicyName)
+                .AddDatabaseService()
+                .AddIdentityService()
+                .AddAuthenticationService()
+                .AddCacheService()
+                .AddAutoMapperService()
+                .AddJsonService()
+                .AddExceptionHandler<GlobalExceptionHandler>()
+                .Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(2))
+                .ConfigureFormOptions()
+                .AddExceptionHandlerService()
+                .AddHttpContextAccessor()
+                .AddRateLimitingService();
 
             // Register services
-            builder.Services.AddScoped<IUsersService, UsersService>();
-            builder.Services.AddScoped<IDecksService, DecksService>();
-            builder.Services.AddScoped<ICardsService, CardsService>();
-            builder.Services.AddScoped<IReviewsService, ReviewsService>();
-            builder.Services.AddScoped<ISettingsService, SettingsService>();
-            builder.Services.AddScoped<IEmailSenderService, EmailSenderService>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<ResponseTemplate>();
-            builder.Services.AddExceptionHandlerService();
-            builder.Services.AddHttpContextAccessor();
-            builder.Services.Configure<DataProtectionTokenProviderOptions> (opt =>
-            opt.TokenLifespan = TimeSpan.FromHours(2));
+            builder.Services.AddScoped<IUsersService, UsersService>()
+                .AddScoped<IDecksService, DecksService>()
+                .AddScoped<ICardsService, CardsService>()
+                .AddScoped<IReviewsService, ReviewsService>()
+                .AddScoped<ISettingsService, SettingsService>()
+                .AddScoped<IEmailSenderService, EmailSenderService>()
+                .AddScoped<IUploadsService, UploadsService>()
+                .AddScoped<IUnitOfWork, UnitOfWork>()
+                .AddScoped<ResponseTemplate>()
+                .AddScoped<ResetCode>();
 
             var app = builder.Build();
 
@@ -54,15 +58,13 @@ namespace FlashcardApp.Api
 
             app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
-            app.UseCors(policyName);
+            app.UseCors(corsPolicyName);
             app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers().RequireRateLimiting(rateLimitPolicies.Global);
+            app.MapControllers().RequireRateLimiting(Global);
 
             app.Run();
-            
-            
         }
     }
 }

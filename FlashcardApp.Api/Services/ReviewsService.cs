@@ -2,6 +2,7 @@
 
 using FlashcardApp.Api.Dtos.CardDtos;
 using FlashcardApp.Api.Dtos.ReviewDtos;
+using FlashcardApp.Api.Interfaces;
 
 namespace FlashcardApp.Api.Services
 {
@@ -9,13 +10,11 @@ namespace FlashcardApp.Api.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ISettingsService _settingsService;
 
-        public ReviewsService(IUnitOfWork unitOfWork, IMapper mapper, ISettingsService settingsService)
+        public ReviewsService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _settingsService = settingsService;
         }
 
         public async Task<ServiceResult<ICollection<CardResponseDto>>> GetDueCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
@@ -101,7 +100,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
-            var settings = await _settingsService.GetSettingsByUserIdAsync(userId);
+            var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
             if (settings is null)
             {
                 return ServiceResult<CardResponseDto>.Failure(

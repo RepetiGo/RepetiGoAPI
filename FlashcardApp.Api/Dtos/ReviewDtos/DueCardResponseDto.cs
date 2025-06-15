@@ -8,7 +8,7 @@
 
         public string BackText { get; set; } = string.Empty;
 
-        public CardPreviewDto PreviewDto { get; set; } = new CardPreviewDto();
+        public CardPreviewResponseDto PreviewDto { get; set; } = new CardPreviewResponseDto();
 
         public DateTime NextReview { get; set; } = DateTime.UtcNow;
 

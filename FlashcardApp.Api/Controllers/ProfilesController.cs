@@ -44,5 +44,29 @@ namespace FlashcardApp.Api.Controllers
             var result = await _usersService.UpdateUsername(updateUsernameRequestDto, User);
             return result.ToActionResult();
         }
+
+        [HttpPost("update-avatar")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ServiceResult<ProfileResponseDto>>> UpdateAvatar([FromForm] UpdateAvatarRequestDto updateAvatarRequestDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            if (updateAvatarRequestDto.File == null || updateAvatarRequestDto.File.Length == 0)
+            {
+                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                    "Avatar file is required",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _usersService.UpdateAvatar(updateAvatarRequestDto, User);
+            return result.ToActionResult();
+        }
     }
 }

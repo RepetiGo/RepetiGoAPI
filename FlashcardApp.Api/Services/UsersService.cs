@@ -4,23 +4,24 @@ using System.Text;
 using System.Text.Encodings.Web;
 
 using AutoMapper;
-using FlashcardApp.Api.Common;
+
 using FlashcardApp.Api.Dtos.ProfileDtos;
 using FlashcardApp.Api.Dtos.UserDtos;
-using Microsoft.AspNetCore.Identity.Data;
+
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FlashcardApp.Api.Services
 {
     public class UsersService : IUsersService
     {
+        private readonly JwtConfig _jwtConfig;
         private readonly SymmetricSecurityKey _key;
         private readonly IDistributedCache _cache;
-        private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IEmailSenderService _emailSenderService;
@@ -28,8 +29,11 @@ namespace FlashcardApp.Api.Services
         private readonly ResponseTemplate _responseTemplate;
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly ISettingsService _settingsService;
+        //Hashtable contains currently active password reset codes
+        private readonly ResetCode _resetCode;
+        private readonly IUploadsService _uploadsService;
 
-        public UsersService(IConfiguration configuration,
+        public UsersService(IOptions<JwtConfig> options,
             IDistributedCache cache,
             UserManager<ApplicationUser> userManager,
             IMapper mapper,
@@ -37,10 +41,12 @@ namespace FlashcardApp.Api.Services
             IHttpContextAccessor httpContextAccessor,
             ResponseTemplate responseTemplate,
             IUrlHelperFactory urlHelperFactory,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            ResetCode resetCode,
+            IUploadsService uploadsService)
         {
-            _configuration = configuration;
-            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("Jwt:Secret") ?? throw new InvalidOperationException("Secret key not found")));
+            _jwtConfig = options.Value;
+            _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Secret));
             _cache = cache;
             _userManager = userManager;
             _mapper = mapper;
@@ -49,9 +55,9 @@ namespace FlashcardApp.Api.Services
             _responseTemplate = responseTemplate;
             _urlHelperFactory = urlHelperFactory;
             _settingsService = settingsService;
+            _resetCode = resetCode;
+            _uploadsService = uploadsService;
         }
-        //Hashtable contains currently active password reset codes
-        public static ResetCode resetCode = new ResetCode();
 
         public async Task<ServiceResult<object>> Register(RegisterRequestDto registerRequestDto)
         {
@@ -376,9 +382,9 @@ namespace FlashcardApp.Api.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Issuer = _configuration.GetValue<string>("Jwt:Issuer") ?? throw new InvalidOperationException("Issuer not found"),
-                Audience = _configuration.GetValue<string>("Jwt:Audience") ?? throw new InvalidOperationException("Audience not found"),
-                Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<double?>("Jwt:TokenValidityInMinutes") ?? 15),
+                Issuer = _jwtConfig.Issuer,
+                Audience = _jwtConfig.Audience,
+                Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.TokenValidityInMinutes),
                 SigningCredentials = credentials,
             };
 
@@ -395,7 +401,7 @@ namespace FlashcardApp.Api.Services
             var refreshToken = WebEncoders.Base64UrlEncode(randomNumber);
             await _cache.SetStringAsync(refreshToken, user.Id, new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_configuration.GetValue<int>("Jwt:RefreshTokenValidityInDays"))
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(_jwtConfig.RefreshTokenValidityInDays)
             });
             return refreshToken;
         }
@@ -437,9 +443,9 @@ namespace FlashcardApp.Api.Services
             });
         }
 
-        public async Task<ServiceResult<object>> ForgotPassword (ForgotPasswordDto forgotPassword)
+        public async Task<ServiceResult<object>> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
         {
-            var existingUser = await _userManager.FindByEmailAsync(forgotPassword.Email);
+            var existingUser = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
             if (existingUser == null)
             {
                 return ServiceResult<object>.Failure(
@@ -448,17 +454,18 @@ namespace FlashcardApp.Api.Services
                 );
             }
             var subject = "Password reset code";
-            string code = resetCode.GenerateCode(forgotPassword.Email);
-            await _emailSenderService.SendEmailAsync(forgotPassword.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
+            string code = _resetCode.GenerateCode(forgotPasswordRequestDto.Email);
+            await _emailSenderService.SendEmailAsync(forgotPasswordRequestDto.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
 
             return ServiceResult<object>.Success(
                 new { Message = "Password reset code sent. Please check your email, including spam folder." },
                 HttpStatusCode.OK
                 );
         }
-        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordDto resetPassword)
+
+        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordRequestDto resetPasswordRequestDto)
         {
-            var existingUser = await _userManager.FindByEmailAsync(resetPassword.Email);
+            var existingUser = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
             if (existingUser == null)
             {
                 return ServiceResult<object>.Failure(
@@ -466,8 +473,8 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.NotFound
                 );
             }
-            string code = resetPassword.Code;
-            if (string.IsNullOrEmpty(code) || !resetCode.ValidateResetCode(resetPassword.Email, code))
+            string code = resetPasswordRequestDto.Code;
+            if (string.IsNullOrEmpty(code) || !_resetCode.ValidateResetCode(resetPasswordRequestDto.Email, code))
             {
                 return ServiceResult<object>.Failure(
                     "Reset code is wrong or has expired.",
@@ -479,15 +486,15 @@ namespace FlashcardApp.Api.Services
             {
                 resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return ServiceResult<object>.Failure(
                     "Failed to generate password reset token due to an internal error.",
                     HttpStatusCode.InternalServerError
                 );
             }
-            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPassword.Password);
-            
+            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPasswordRequestDto.Password);
+
             if (!result.Succeeded)
             {
                 var errors = result.Errors.FirstOrDefault();
@@ -502,7 +509,81 @@ namespace FlashcardApp.Api.Services
             new { Message = "Password successfully changed." },
             HttpStatusCode.OK
             );
-            
+
+        }
+
+        public async Task<ServiceResult<ProfileResponseDto>> UpdateAvatar(UpdateAvatarRequestDto updateAvatarRequestDto, ClaimsPrincipal claimsPrincipal)
+        {
+            var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<ProfileResponseDto>.Failure(
+                    "User not authenticated",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var user = _userManager.FindByIdAsync(userId).Result;
+            if (user is null)
+            {
+                return ServiceResult<ProfileResponseDto>.Failure(
+                    "User not found",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            if (updateAvatarRequestDto.File == null || updateAvatarRequestDto.File.Length == 0)
+            {
+                return ServiceResult<ProfileResponseDto>.Failure(
+                    "Avatar file is required",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            var uploadResult = await _uploadsService.UploadImageAsync(updateAvatarRequestDto.File);
+            if (!uploadResult.IsSuccess)
+            {
+                return ServiceResult<ProfileResponseDto>.Failure(
+                    uploadResult.ErrorMessage ?? "Failed to upload avatar",
+                    HttpStatusCode.InternalServerError
+                );
+            }
+
+            // Delete the old image if it exists
+            var oldAvatarPublicId = user.AvatarPublicId;
+            if (!string.IsNullOrEmpty(oldAvatarPublicId))
+            {
+                var deleteResult = await _uploadsService.DeleteImageAsync(oldAvatarPublicId);
+                if (!deleteResult.IsSuccess)
+                {
+                    return ServiceResult<ProfileResponseDto>.Failure(
+                        deleteResult.ErrorMessage ?? "Failed to delete old avatar",
+                        HttpStatusCode.InternalServerError
+                    );
+                }
+            }
+
+            user.AvatarUrl = uploadResult.SecureUrl;
+            user.AvatarPublicId = uploadResult.PublicId;
+
+            // Update user with new avatar URL and public ID
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                // Delete the newly uploaded image since we're rolling back
+                await _uploadsService.DeleteImageAsync(uploadResult.PublicId);
+                return ServiceResult<ProfileResponseDto>.Failure(
+                    updateResult.Errors.FirstOrDefault()?.Description ?? "Failed to update avatar",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            var profileResponseDto = _mapper.Map<ProfileResponseDto>(user);
+
+            return ServiceResult<ProfileResponseDto>.Success(
+                profileResponseDto,
+                HttpStatusCode.OK
+            );
         }
     }
 }

@@ -22,6 +22,10 @@
 
         public int LearningStep { get; set; } = 0;
 
+        public string? ImageUrl { get; set; }
+
+        public string? ImagePublicId { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

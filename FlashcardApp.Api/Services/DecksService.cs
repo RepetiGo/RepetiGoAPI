@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using FlashcardApp.Api.Dtos.DeckDtos;
+using FlashcardApp.Api.Interfaces;
 
 namespace FlashcardApp.Api.Services
 {
@@ -9,12 +10,16 @@ namespace FlashcardApp.Api.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IUploadsService _uploadsService;
+        private readonly ILogger<DecksService> _logger;
 
-        public DecksService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public DecksService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IMapper mapper, IUploadsService uploadsService, ILogger<DecksService> logger)
         {
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _uploadsService = uploadsService;
+            _logger = logger;
         }
 
         public async Task<ServiceResult<ICollection<DeckResponseDto>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
@@ -188,6 +193,20 @@ namespace FlashcardApp.Api.Services
                     "You do not have permission to delete this deck",
                     HttpStatusCode.Forbidden
                 );
+            }
+
+            // Check if the deck has any associated flashcards
+            var cards = await _unitOfWork.CardsRepository.GetAllAsync(c => c.DeckId == deckId);
+            if (cards != null && cards.Any())
+            {
+                foreach (var card in cards)
+                {
+                    var imageDeletionResult = await _uploadsService.DeleteImageAsync(card.ImagePublicId);
+                    if (!imageDeletionResult.IsSuccess)
+                    {
+                        _logger.LogError("Failed to delete card image: {Error}", imageDeletionResult.ErrorMessage);
+                    }
+                }
             }
 
             await _unitOfWork.DecksRepository.TryDeleteAsync(deck);

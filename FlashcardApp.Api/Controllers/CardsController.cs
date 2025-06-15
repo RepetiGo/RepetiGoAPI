@@ -47,7 +47,8 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> CreateCardAsync([FromRoute] int deckId, [FromBody] CreateCardRequestDto createCardDto)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ServiceResult<CardResponseDto>>> CreateCardAsync([FromRoute] int deckId, [FromForm] CreateCardRequestDto createCardDto)
         {
             if (!ModelState.IsValid)
             {
@@ -62,7 +63,8 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPut("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] UpdateCardRequestDto updateCardRequestDto)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ServiceResult<CardResponseDto>>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromForm] UpdateCardRequestDto updateCardRequestDto)
         {
             if (!ModelState.IsValid)
             {

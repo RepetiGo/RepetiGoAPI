@@ -1,9 +1,8 @@
-﻿using FlashcardApp.Api.Data;
-using FlashcardApp.Api.Models;
+﻿using FlashcardApp.Api.Interfaces.Repositories;
 
 namespace FlashcardApp.Api.Repositories
 {
-    public class DecksRepository : GenericRepository<Deck>, IGenericRepository<Deck>
+    public class DecksRepository : GenericRepository<Deck>, IDecksRepository
     {
         public DecksRepository(ApplicationDbContext context) : base(context)
         {

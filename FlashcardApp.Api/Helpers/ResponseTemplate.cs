@@ -1033,7 +1033,7 @@
           <!-- start copy -->
           <tr>
             <td align=""left"" bgcolor=""#ffffff"" style=""padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;"">
-              <p style=""margin: 0;"">Use the code below to confirm your email address. If you didn't create an account with <b>RepetiGo</b>, you can safely delete this email.</p>
+              <p style=""margin: 0;"">Use the code below to confirm your email address. If you didn't request password resest for <b>RepetiGo</b> account, you can safely delete this email.</p>
             </td>
           </tr>
           <!-- end copy -->

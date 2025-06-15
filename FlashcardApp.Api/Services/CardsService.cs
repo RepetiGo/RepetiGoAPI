@@ -1,8 +1,7 @@
-﻿
-
-using AutoMapper;
+﻿using AutoMapper;
 
 using FlashcardApp.Api.Dtos.CardDtos;
+using FlashcardApp.Api.Interfaces;
 
 namespace FlashcardApp.Api.Services
 {
@@ -10,13 +9,15 @@ namespace FlashcardApp.Api.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ISettingsService _settingsService;
+        private readonly IUploadsService _uploadsService;
+        private readonly ILogger<CardsService> _logger;
 
-        public CardsService(IUnitOfWork unitOfWork, IMapper mapper, ISettingsService settingsService)
+        public CardsService(IUnitOfWork unitOfWork, IMapper mapper, IUploadsService uploadsService, ILogger<CardsService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _settingsService = settingsService;
+            _uploadsService = uploadsService;
+            _logger = logger;
         }
 
         public async Task<ServiceResult<ICollection<CardResponseDto>>> GetCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
@@ -127,7 +128,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
-            var settings = await _settingsService.GetSettingsByUserIdAsync(userId);
+            var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
             if (settings is null)
             {
                 return ServiceResult<CardResponseDto>.Failure(
@@ -140,6 +141,23 @@ namespace FlashcardApp.Api.Services
 
             card.DeckId = deckId;
             card.EasinessFactor = settings.StartingEasinessFactor;
+
+            // Upload the image if provided
+            if (createCardDto.ImageFile is not null && createCardDto.ImageFile.Length > 0)
+            {
+                var uploadResult = await _uploadsService.UploadImageAsync(createCardDto.ImageFile);
+                if (!uploadResult.IsSuccess)
+                {
+                    return ServiceResult<CardResponseDto>.Failure(
+                        uploadResult.ErrorMessage,
+                        HttpStatusCode.InternalServerError
+                    );
+                }
+
+                card.ImageUrl = uploadResult.SecureUrl;
+                card.ImagePublicId = uploadResult.PublicId;
+            }
+
             await _unitOfWork.CardsRepository.AddAsync(card);
             await _unitOfWork.SaveAsync();
 
@@ -183,6 +201,36 @@ namespace FlashcardApp.Api.Services
                     "Card not found",
                     HttpStatusCode.NotFound
                 );
+            }
+
+            // Upload the image if provided
+            if (updateCardRequestDto.ImageFile is not null && updateCardRequestDto.ImageFile.Length > 0)
+            {
+                var uploadResult = await _uploadsService.UploadImageAsync(updateCardRequestDto.ImageFile);
+                if (!uploadResult.IsSuccess)
+                {
+                    return ServiceResult<CardResponseDto>.Failure(
+                        uploadResult.ErrorMessage,
+                        HttpStatusCode.InternalServerError
+                    );
+                }
+
+                // Delete the old image if it exists
+                var oldImagePublicId = card.ImagePublicId;
+                if (!string.IsNullOrEmpty(oldImagePublicId))
+                {
+                    var deleteResult = await _uploadsService.DeleteImageAsync(oldImagePublicId);
+                    if (!deleteResult.IsSuccess)
+                    {
+                        return ServiceResult<CardResponseDto>.Failure(
+                            deleteResult.ErrorMessage ?? "Failed to delete old image",
+                            HttpStatusCode.InternalServerError
+                        );
+                    }
+                }
+
+                card.ImageUrl = uploadResult.SecureUrl;
+                card.ImagePublicId = uploadResult.PublicId;
             }
 
             _mapper.Map(updateCardRequestDto, card);
@@ -229,6 +277,16 @@ namespace FlashcardApp.Api.Services
                     "Card not found",
                     HttpStatusCode.NotFound
                 );
+            }
+
+            // Delete the image if it exists
+            if (!string.IsNullOrEmpty(card.ImagePublicId))
+            {
+                var deleteResult = await _uploadsService.DeleteImageAsync(card.ImagePublicId);
+                if (!deleteResult.IsSuccess)
+                {
+                    _logger.LogError("Failed to delete card image: {Error}", deleteResult.ErrorMessage);
+                }
             }
 
             await _unitOfWork.CardsRepository.TryDeleteAsync(card);
