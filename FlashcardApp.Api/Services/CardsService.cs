@@ -143,9 +143,9 @@ namespace FlashcardApp.Api.Services
             card.EasinessFactor = settings.StartingEasinessFactor;
 
             // Upload the image if provided
-            if (createCardDto.File is not null && createCardDto.File.Length > 0)
+            if (createCardDto.ImageFile is not null && createCardDto.ImageFile.Length > 0)
             {
-                var uploadResult = await _uploadsService.UploadImageAsync(createCardDto.File);
+                var uploadResult = await _uploadsService.UploadImageAsync(createCardDto.ImageFile);
                 if (!uploadResult.IsSuccess)
                 {
                     return ServiceResult<CardResponseDto>.Failure(
@@ -204,9 +204,9 @@ namespace FlashcardApp.Api.Services
             }
 
             // Upload the image if provided
-            if (updateCardRequestDto.File is not null && updateCardRequestDto.File.Length > 0)
+            if (updateCardRequestDto.ImageFile is not null && updateCardRequestDto.ImageFile.Length > 0)
             {
-                var uploadResult = await _uploadsService.UploadImageAsync(updateCardRequestDto.File);
+                var uploadResult = await _uploadsService.UploadImageAsync(updateCardRequestDto.ImageFile);
                 if (!uploadResult.IsSuccess)
                 {
                     return ServiceResult<CardResponseDto>.Failure(
