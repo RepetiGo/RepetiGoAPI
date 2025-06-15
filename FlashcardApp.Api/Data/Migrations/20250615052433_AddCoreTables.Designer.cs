@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FlashcardApp.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250614150138_AddCoreTables")]
+    [Migration("20250615052433_AddCoreTables")]
     partial class AddCoreTables
     {
         /// <inheritdoc />

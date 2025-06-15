@@ -1,8 +1,8 @@
-﻿using FlashcardApp.Api.Dtos.UploadDtos;
-
-namespace FlashcardApp.Api.Dtos.ProfileDtos
+﻿namespace FlashcardApp.Api.Dtos.ProfileDtos
 {
-    public class UpdateAvatarRequestDto : UploadRequestDto
+    public class UpdateAvatarRequestDto
     {
+        [Required(ErrorMessage = "File is required.")]
+        public IFormFile File { get; set; } = null!;
     }
 }

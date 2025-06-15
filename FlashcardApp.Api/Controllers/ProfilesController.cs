@@ -49,6 +49,14 @@ namespace FlashcardApp.Api.Controllers
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ServiceResult<ProfileResponseDto>>> UpdateAvatar([FromForm] UpdateAvatarRequestDto updateAvatarRequestDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
             if (updateAvatarRequestDto.File == null || updateAvatarRequestDto.File.Length == 0)
             {
                 return BadRequest(ServiceResult<ProfileResponseDto>.Failure(

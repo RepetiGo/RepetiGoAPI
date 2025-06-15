@@ -13,5 +13,7 @@
         [Display(Name = "Back Text")]
         [Required(ErrorMessage = "Back text is required")]
         public string BackText { get; set; } = string.Empty;
+
+        public IFormFile? File { get; set; }
     }
 }

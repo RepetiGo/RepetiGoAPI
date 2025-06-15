@@ -42,10 +42,9 @@ namespace FlashcardApp.Api.Services
             };
         }
 
-        public async Task<ImageUploadResponseDto> UploadImageAsync(UploadRequestDto uploadRequestDto)
+        public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile formFile)
         {
-            var file = uploadRequestDto.File;
-            if (file == null || file.Length == 0)
+            if (formFile == null || formFile.Length == 0)
             {
                 return new ImageUploadResponseDto
                 {
@@ -56,11 +55,11 @@ namespace FlashcardApp.Api.Services
 
             var uploadResult = new ImageUploadResult();
 
-            using (var stream = file.OpenReadStream())
+            using (var stream = formFile.OpenReadStream())
             {
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription(file.FileName, stream),
+                    File = new FileDescription(formFile.FileName, stream),
                     UploadPreset = _cloudinaryConfig.UploadPreset,
                 };
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);

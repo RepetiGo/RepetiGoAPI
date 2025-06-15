@@ -540,7 +540,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
-            var uploadResult = await _uploadsService.UploadImageAsync(updateAvatarRequestDto);
+            var uploadResult = await _uploadsService.UploadImageAsync(updateAvatarRequestDto.File);
             if (!uploadResult.IsSuccess)
             {
                 return ServiceResult<ProfileResponseDto>.Failure(
@@ -549,7 +549,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
-            // Remove old avatar if it exists
+            // Delete the old image if it exists
             var oldAvatarPublicId = user.AvatarPublicId;
             if (!string.IsNullOrEmpty(oldAvatarPublicId))
             {
@@ -566,9 +566,12 @@ namespace FlashcardApp.Api.Services
             user.AvatarUrl = uploadResult.SecureUrl;
             user.AvatarPublicId = uploadResult.PublicId;
 
+            // Update user with new avatar URL and public ID
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
+                // Delete the newly uploaded image since we're rolling back
+                await _uploadsService.DeleteImageAsync(uploadResult.PublicId);
                 return ServiceResult<ProfileResponseDto>.Failure(
                     updateResult.Errors.FirstOrDefault()?.Description ?? "Failed to update avatar",
                     HttpStatusCode.BadRequest
