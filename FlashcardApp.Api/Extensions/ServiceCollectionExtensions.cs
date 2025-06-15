@@ -212,6 +212,11 @@ namespace FlashcardApp.Api.Extensions
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
+            services.AddOptions<OAuthConfig>()
+                .Bind(configuration.GetSection(OAuthConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
             return services;
         }
 
