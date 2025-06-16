@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.UserDtos
 {
-    public class LogInRequestDto
+    public class LogInRequest
     {
         [EmailAddress]
         [Display(Name = "Email")]

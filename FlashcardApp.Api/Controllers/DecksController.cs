@@ -17,11 +17,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResult<ICollection<DeckResponseDto>>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ICollection<DeckResponseDto>>.Failure(
+                return BadRequest(ServiceResult<ICollection<DeckResponse>>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -32,11 +32,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("{deckId:int}")]
-        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> GetDeckById([FromRoute] int deckId)
+        public async Task<ActionResult<ServiceResult<DeckResponse>>> GetDeckById([FromRoute] int deckId)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<DeckResponseDto>.Failure(
+                return BadRequest(ServiceResult<DeckResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -47,32 +47,32 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> CreateDeck([FromBody] CreateDeckRequestDto createDeckRequestDto)
+        public async Task<ActionResult<ServiceResult<DeckResponse>>> CreateDeck([FromBody] CreateDeckRequest createDeckRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<DeckResponseDto>.Failure(
+                return BadRequest(ServiceResult<DeckResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _decksService.CreateDeckAsync(createDeckRequestDto, User);
+            var result = await _decksService.CreateDeckAsync(createDeckRequest, User);
             return result.ToActionResult();
         }
 
         [HttpPut("{deckId:int}")]
-        public async Task<ActionResult<ServiceResult<DeckResponseDto>>> UpdateDeck([FromRoute] int deckId, [FromBody] UpdateDeckRequestDto updateDeckRequestDto)
+        public async Task<ActionResult<ServiceResult<DeckResponse>>> UpdateDeck([FromRoute] int deckId, [FromBody] UpdateDeckRequest updateDeckRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<DeckResponseDto>.Failure(
+                return BadRequest(ServiceResult<DeckResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _decksService.UpdateDeckAsync(deckId, updateDeckRequestDto, User);
+            var result = await _decksService.UpdateDeckAsync(deckId, updateDeckRequest, User);
             return result.ToActionResult();
         }
 

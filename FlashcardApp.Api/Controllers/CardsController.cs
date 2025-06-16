@@ -1,4 +1,5 @@
 ﻿using FlashcardApp.Api.Dtos.CardDtos;
+using FlashcardApp.Api.Dtos.GeneratedContentDtos;
 
 using Microsoft.AspNetCore.Authorization;
 
@@ -17,11 +18,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<ServiceResult<ICollection<CardResponseDto>>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ICollection<CardResponseDto>>.Failure(
+                return BadRequest(ServiceResult<ICollection<CardResponse>>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -32,11 +33,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> GetCardByIdAsync([FromRoute] int deckId, [FromRoute] int cardId)
+        public async Task<ActionResult<ServiceResult<CardResponse>>> GetCardByIdAsync([FromRoute] int deckId, [FromRoute] int cardId)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<CardResponseDto>.Failure(
+                return BadRequest(ServiceResult<CardResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -48,33 +49,33 @@ namespace FlashcardApp.Api.Controllers
 
         [HttpPost("decks/{deckId:int}/cards")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> CreateCardAsync([FromRoute] int deckId, [FromForm] CreateCardRequestDto createCardDto)
+        public async Task<ActionResult<ServiceResult<CardResponse>>> CreateCardAsync([FromRoute] int deckId, [FromForm] CreateCardRequest createCardRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<CardResponseDto>.Failure(
+                return BadRequest(ServiceResult<CardResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _cardsService.CreateCardAsync(deckId, createCardDto, User);
+            var result = await _cardsService.CreateCardAsync(deckId, createCardRequest, User);
             return result.ToActionResult();
         }
 
         [HttpPut("decks/{deckId:int}/cards/{cardId:int}")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromForm] UpdateCardRequestDto updateCardRequestDto)
+        public async Task<ActionResult<ServiceResult<CardResponse>>> UpdateCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromForm] UpdateCardRequest updateCardRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<CardResponseDto>.Failure(
+                return BadRequest(ServiceResult<CardResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _cardsService.UpdateCardAsync(deckId, cardId, updateCardRequestDto, User);
+            var result = await _cardsService.UpdateCardAsync(deckId, cardId, updateCardRequest, User);
             return result.ToActionResult();
         }
 
@@ -90,6 +91,22 @@ namespace FlashcardApp.Api.Controllers
             }
 
             var result = await _cardsService.DeleteCardAsync(deckId, cardId, User);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("generate")]
+        //[EnableRateLimiting("ai-generation")]
+        public async Task<ActionResult<ServiceResult<PreviewCardResponse>>> GenerateCardAsync([FromBody] GenerateRequest generateRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<PreviewCardResponse>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _cardsService.GenerateCardAsync(generateRequest, User);
             return result.ToActionResult();
         }
     }

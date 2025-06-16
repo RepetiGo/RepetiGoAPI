@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.ProfileDtos
 {
-    public class UpdateUsernameRequestDto
+    public class UpdateUsernameRequest
     {
         [Required(ErrorMessage = "New username is required")]
         [StringLength(20, ErrorMessage = "Username length must be between 3 and 20 characters", MinimumLength = 3)]

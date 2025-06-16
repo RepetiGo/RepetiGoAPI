@@ -217,6 +217,11 @@ namespace FlashcardApp.Api.Extensions
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
+            services.AddOptions<GoogleGeminiConfig>()
+                .Bind(configuration.GetSection(GoogleGeminiConfig.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
             return services;
         }
 

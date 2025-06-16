@@ -5,7 +5,7 @@ namespace FlashcardApp.Api.Interfaces.Services
 {
     public interface IReviewsService
     {
-        Task<ServiceResult<ICollection<CardResponseDto>>> GetDueCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal);
-        Task<ServiceResult<CardResponseDto>> ReviewCardAsync(int deckId, int cardId, ReviewRequestDto reviewRequestDto, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<ICollection<CardResponse>>> GetDueCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<CardResponse>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal);
     }
 }

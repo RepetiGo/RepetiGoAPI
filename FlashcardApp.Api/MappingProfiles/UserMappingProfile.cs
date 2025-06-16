@@ -8,11 +8,11 @@ namespace FlashcardApp.Api.MappingProfiles
     {
         public UserMappingProfile()
         {
-            CreateMap<ApplicationUser, ProfileResponseDto>()
+            CreateMap<ApplicationUser, ProfileResponse>()
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.Decks, opt => opt.Ignore());
 
-            CreateMap<UpdateUsernameRequestDto, ApplicationUser>();
+            CreateMap<UpdateUsernameRequest, ApplicationUser>();
         }
     }
 }

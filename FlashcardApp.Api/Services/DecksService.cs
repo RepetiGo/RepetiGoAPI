@@ -22,12 +22,12 @@ namespace FlashcardApp.Api.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResult<ICollection<DeckResponseDto>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ICollection<DeckResponse>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ICollection<DeckResponseDto>>.Failure(
+                return ServiceResult<ICollection<DeckResponse>>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -36,7 +36,7 @@ namespace FlashcardApp.Api.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return ServiceResult<ICollection<DeckResponseDto>>.Failure(
+                return ServiceResult<ICollection<DeckResponse>>.Failure(
                     "User not found",
                     HttpStatusCode.NotFound
                 );
@@ -47,17 +47,17 @@ namespace FlashcardApp.Api.Services
                 orderBy: q => q.OrderBy(d => d.CreatedAt),
                 paginationQuery: paginationQuery);
 
-            var deckDtos = _mapper.Map<ICollection<DeckResponseDto>>(decks);
+            var decksReponse = _mapper.Map<ICollection<DeckResponse>>(decks);
 
-            return ServiceResult<ICollection<DeckResponseDto>>.Success(deckDtos);
+            return ServiceResult<ICollection<DeckResponse>>.Success(decksReponse);
         }
 
-        public async Task<ServiceResult<DeckResponseDto>> GetDeckByIdAsync(int deckId, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<DeckResponse>> GetDeckByIdAsync(int deckId, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -66,7 +66,7 @@ namespace FlashcardApp.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -74,23 +74,23 @@ namespace FlashcardApp.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "You do not have permission to access this deck",
                     HttpStatusCode.Forbidden
                 );
             }
 
-            var deckDto = _mapper.Map<DeckResponseDto>(deck);
+            var deckResponse = _mapper.Map<DeckResponse>(deck);
 
-            return ServiceResult<DeckResponseDto>.Success(deckDto);
+            return ServiceResult<DeckResponse>.Success(deckResponse);
         }
 
-        public async Task<ServiceResult<DeckResponseDto>> CreateDeckAsync(CreateDeckRequestDto createDeckDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<DeckResponse>> CreateDeckAsync(CreateDeckRequest createDeckRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -98,9 +98,9 @@ namespace FlashcardApp.Api.Services
 
             var deck = new Deck
             {
-                Name = createDeckDto.Name,
-                Description = createDeckDto.Description,
-                Visibility = createDeckDto.Visibility,
+                Name = createDeckRequest.Name,
+                Description = createDeckRequest.Description,
+                Visibility = createDeckRequest.Visibility,
                 UserId = userId,
             };
 
@@ -110,23 +110,23 @@ namespace FlashcardApp.Api.Services
             var existingDeck = await _unitOfWork.DecksRepository.GetByIdAsync(deck.Id);
             if (existingDeck is null)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "Failed to create deck",
                     HttpStatusCode.InternalServerError
                 );
             }
 
-            var deckDto = _mapper.Map<DeckResponseDto>(existingDeck);
+            var deckResponse = _mapper.Map<DeckResponse>(existingDeck);
 
-            return ServiceResult<DeckResponseDto>.Success(deckDto);
+            return ServiceResult<DeckResponse>.Success(deckResponse);
         }
 
-        public async Task<ServiceResult<DeckResponseDto>> UpdateDeckAsync(int deckId, UpdateDeckRequestDto updateDeckRequestDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<DeckResponse>> UpdateDeckAsync(int deckId, UpdateDeckRequest updateDeckRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -135,7 +135,7 @@ namespace FlashcardApp.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -143,28 +143,28 @@ namespace FlashcardApp.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "You do not have permission to update this deck",
                     HttpStatusCode.Forbidden
                 );
             }
 
-            _mapper.Map(updateDeckRequestDto, deck);
+            _mapper.Map(updateDeckRequest, deck);
             await _unitOfWork.DecksRepository.UpdateAsync(deck);
             await _unitOfWork.SaveAsync();
 
             var updatedDeck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (updatedDeck is null)
             {
-                return ServiceResult<DeckResponseDto>.Failure(
+                return ServiceResult<DeckResponse>.Failure(
                     "Failed to retrieve updated deck",
                     HttpStatusCode.InternalServerError
                 );
             }
 
-            var deckDto = _mapper.Map<DeckResponseDto>(updatedDeck);
+            var deckResponse = _mapper.Map<DeckResponse>(updatedDeck);
 
-            return ServiceResult<DeckResponseDto>.Success(deckDto);
+            return ServiceResult<DeckResponse>.Success(deckResponse);
         }
 
         public async Task<ServiceResult<object>> DeleteDeckAsync(int deckId, ClaimsPrincipal claimsPrincipal)
@@ -201,10 +201,13 @@ namespace FlashcardApp.Api.Services
             {
                 foreach (var card in cards)
                 {
-                    var imageDeletionResult = await _uploadsService.DeleteImageAsync(card.ImagePublicId);
-                    if (!imageDeletionResult.IsSuccess)
+                    if (card.ImagePublicId != null)
                     {
-                        _logger.LogError("Failed to delete card image: {Error}", imageDeletionResult.ErrorMessage);
+                        var imageDeletionResult = await _uploadsService.DeleteImageAsync(card.ImagePublicId);
+                        if (!imageDeletionResult.IsSuccess)
+                        {
+                            _logger.LogError("Failed to delete card image: {Error}", imageDeletionResult.ErrorMessage);
+                        }
                     }
                 }
             }

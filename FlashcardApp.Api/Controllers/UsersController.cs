@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<ActionResult<ServiceResult<object>>> Register([FromBody] RegisterRequestDto registerRequestDto)
+        public async Task<ActionResult<ServiceResult<object>>> Register([FromBody] RegisterRequest registerRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -27,7 +27,7 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
 
-            var result = await _usersService.Register(registerRequestDto);
+            var result = await _usersService.Register(registerRequest);
             return result.ToActionResult();
         }
 
@@ -78,39 +78,39 @@ namespace FlashcardApp.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult<ServiceResult<UserResponseDto>>> LogIn([FromBody] LogInRequestDto logInRequestDto)
+        public async Task<ActionResult<ServiceResult<UserResponse>>> LogIn([FromBody] LogInRequest logInRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<UserResponseDto>.Failure(
+                return BadRequest(ServiceResult<UserResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _usersService.LogIn(logInRequestDto);
+            var result = await _usersService.LogIn(logInRequest);
             return result.ToActionResult();
         }
 
         [AllowAnonymous]
         [HttpPost("refresh/{userId}")]
-        public async Task<ActionResult<ServiceResult<UserResponseDto>>> RefreshToken([FromRoute] string userId, [FromBody] RefreshTokenRequestDto refreshTokenRequestDto)
+        public async Task<ActionResult<ServiceResult<UserResponse>>> RefreshToken([FromRoute] string userId, [FromBody] RefreshTokenRequest refreshTokenRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<UserResponseDto>.Failure(
+                return BadRequest(ServiceResult<UserResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _usersService.RefreshToken(userId, refreshTokenRequestDto);
+            var result = await _usersService.RefreshToken(userId, refreshTokenRequest);
             return result.ToActionResult();
         }
 
         [AllowAnonymous]
         [HttpPost("reset-password")]
-        public async Task<ActionResult<ServiceResult<object>>> ResetPassword([FromBody] ResetPasswordRequestDto resetPasswordRequestDto)
+        public async Task<ActionResult<ServiceResult<object>>> ResetPassword([FromBody] ResetPasswordRequest resetPasswordRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -119,13 +119,13 @@ namespace FlashcardApp.Api.Controllers
                     HttpStatusCode.BadRequest
                 ));
             }
-            var result = await _usersService.ResetPassword(resetPasswordRequestDto);
+            var result = await _usersService.ResetPassword(resetPasswordRequest);
             return result.ToActionResult();
         }
 
         [AllowAnonymous]
         [HttpPost("forgot-password")]
-        public async Task<ActionResult<ServiceResult<object>>> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordRequestDto)
+        public async Task<ActionResult<ServiceResult<object>>> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -134,13 +134,13 @@ namespace FlashcardApp.Api.Controllers
                     HttpStatusCode.BadRequest
                 ));
             }
-            var result = await _usersService.ForgotPassword(forgotPasswordRequestDto);
+            var result = await _usersService.ForgotPassword(forgotPasswordRequest);
             return result.ToActionResult();
         }
 
         [Authorize]
         [HttpPost("logout")]
-        public async Task<ActionResult<ServiceResult<object>>> LogOut([FromBody] LogOutRequestDto logOutRequestDto)
+        public async Task<ActionResult<ServiceResult<object>>> LogOut([FromBody] LogOutRequest logOutRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -150,7 +150,7 @@ namespace FlashcardApp.Api.Controllers
                 ));
             }
 
-            var result = await _usersService.LogOut(logOutRequestDto, User);
+            var result = await _usersService.LogOut(logOutRequest, User);
             return result.ToActionResult();
         }
     }

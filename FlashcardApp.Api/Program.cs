@@ -36,6 +36,7 @@ namespace FlashcardApp.Api
                 .AddScoped<ISettingsService, SettingsService>()
                 .AddScoped<IEmailSenderService, EmailSenderService>()
                 .AddScoped<IUploadsService, UploadsService>()
+                .AddScoped<IAiGeneratorService, AiGeneratorService>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<ResponseTemplate>()
                 .AddScoped<ResetCode>();

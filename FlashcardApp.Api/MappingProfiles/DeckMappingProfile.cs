@@ -8,9 +8,9 @@ namespace FlashcardApp.Api.MappingProfiles
     {
         public DeckMappingProfile()
         {
-            CreateMap<CreateDeckRequestDto, Deck>();
-            CreateMap<UpdateDeckRequestDto, Deck>();
-            CreateMap<Deck, DeckResponseDto>();
+            CreateMap<CreateDeckRequest, Deck>();
+            CreateMap<UpdateDeckRequest, Deck>();
+            CreateMap<Deck, DeckResponse>();
         }
     }
 }

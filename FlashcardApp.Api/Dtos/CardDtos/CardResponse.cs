@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.CardDtos
 {
-    public class CardResponseDto
+    public class CardResponse
     {
         public int Id { get; set; }
 

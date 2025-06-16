@@ -17,7 +17,7 @@ namespace FlashcardApp.Api.Helpers
             Exception exception,
             CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+            _logger.LogError(exception, "An unhandled exception occurred (GlobalExceptionHandler): {Message}", exception.Message);
 
             var status = exception switch
             {

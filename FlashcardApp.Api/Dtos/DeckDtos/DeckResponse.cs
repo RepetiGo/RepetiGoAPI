@@ -1,12 +1,12 @@
 ﻿namespace FlashcardApp.Api.Dtos.DeckDtos
 {
-    public class DeckResponseDto
+    public class DeckResponse
     {
         public int Id { get; set; }
 
         public string Name { get; set; } = string.Empty;
 
-        public string? Description { get; set; } = null;
+        public string Description { get; set; } = string.Empty;
 
         public CardVisibility Visibility { get; set; } = CardVisibility.Public;
 

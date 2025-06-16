@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.DeckDtos
 {
-    public class UpdateDeckRequestDto
+    public class CreateDeckRequest
     {
         [MinLength(1)]
         [MaxLength(100)]
@@ -10,12 +10,11 @@
 
         [MaxLength(500)]
         [Display(Name = "Description")]
-        public string? Description { get; set; } = null;
+        public string Description { get; set; } = string.Empty;
 
         [Display(Name = "Visibility")]
         [Required(ErrorMessage = "Visibility is required")]
         [EnumDataType(typeof(CardVisibility), ErrorMessage = "Invalid visibility type")]
-        [Range(0, 1, ErrorMessage = "Visibility must be between 0 (Private) and 1 (Public)")]
         public CardVisibility Visibility { get; set; } = CardVisibility.Public;
     }
 }

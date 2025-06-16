@@ -1,0 +1,10 @@
+﻿namespace FlashcardApp.Api.Dtos.GeneratedContentDtos
+{
+    public class GeneratedImageResult
+    {
+        public bool IsSuccess { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
+        public string ImagePublicId { get; set; } = string.Empty;
+        public string ErrorMessage { get; set; } = string.Empty;
+    }
+}

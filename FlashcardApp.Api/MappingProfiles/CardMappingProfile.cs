@@ -8,9 +8,9 @@ namespace FlashcardApp.Api.MappingProfiles
     {
         public CardMappingProfile()
         {
-            CreateMap<CreateCardRequestDto, Card>();
-            CreateMap<UpdateCardRequestDto, Card>();
-            CreateMap<Card, CardResponseDto>();
+            CreateMap<CreateCardRequest, Card>();
+            CreateMap<UpdateCardRequest, Card>();
+            CreateMap<Card, CardResponse>();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace FlashcardApp.Api.Dtos.UploadDtos
 {
-    public class ImageUploadResponseDto
+    public class ImageUploadResponse
     {
         public bool IsSuccess { get; set; }
         public string SecureUrl { get; set; } = string.Empty;
