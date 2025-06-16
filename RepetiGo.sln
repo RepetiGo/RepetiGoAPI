@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36121.58
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepetiGo.Api", "FlashcardApp.Api\RepetiGo.Api.csproj", "{7AE8A532-6441-5FB4-BF57-BCF5AEFC2B3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepetiGo.Api", "RepetiGo.Api\RepetiGo.Api.csproj", "{7AE8A532-6441-5FB4-BF57-BCF5AEFC2B3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
