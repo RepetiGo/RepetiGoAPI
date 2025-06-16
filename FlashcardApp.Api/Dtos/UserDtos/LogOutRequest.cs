@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.UserDtos
+﻿namespace RepetiGo.Api.Dtos.UserDtos
 {
-    public class LogOutRequestDto
+    public class LogOutRequest
     {
         [Display(Name = "Refresh Token")]
         [Required(ErrorMessage = "Refresh token is required")]

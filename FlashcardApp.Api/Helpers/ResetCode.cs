@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FlashcardApp.Api.Helpers
+namespace RepetiGo.Api.Helpers
 {
     public class ResetCode
     {

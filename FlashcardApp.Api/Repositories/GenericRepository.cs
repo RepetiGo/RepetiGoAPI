@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
 
-using FlashcardApp.Api.Interfaces.Repositories;
+using RepetiGo.Api.Data;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Repositories;
 
-namespace FlashcardApp.Api.Repositories
+namespace RepetiGo.Api.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {

@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Helpers
+﻿namespace RepetiGo.Api.Helpers
 {
     public class ResponseTemplate
     {
@@ -1105,6 +1105,49 @@
 
 </body>
 </html>";
+        }
+
+        public string GetPromptTemplate(string topic, string frontText, string backText)
+        {
+            // If the user provided a starting point, note it. Otherwise, create from scratch.
+            string inputContext = string.IsNullOrWhiteSpace(frontText) && string.IsNullOrWhiteSpace(backText)
+                ? $"The user wants a flashcard for the topic: \"{topic}\"."
+                : $"The user provided a starting point for the topic \"{topic}\" and wants it improved.\n- Provided Front: \"{frontText}\"\n- Provided Back: \"{backText}\"";
+
+            return $@"You are a flashcard assistant that helps users learn complex topics quickly.
+Your tone must be **casual and straightforward**, like a smart friend explaining something.
+Your goal is to make the card **easy to understand and memorize**.
+
+{inputContext}
+
+**Instructions:**
+1.  Rewrite or generate a flashcard with a 'FrontText' and a 'BackText'.
+2.  Use **simple language**. Avoid formal jargon and overly academic words.
+3.  If the topic is complex, use a **simple analogy or metaphor** in the BackText.
+4.  The FrontText should be a direct question. The BackText should be the clear answer.
+5.  Do not include any special characters or formatting in the text.
+
+Respond ONLY with a single, raw JSON object in the following format. Do not include ```json``` or any other markdown.
+
+{{
+  ""FrontText"": ""..."",
+  ""BackText"": ""...""
+}}";
+        }
+
+        public string GetVisualIdeaPrompt(string frontText, string backText)
+        {
+            return $@"
+You are a creative assistant. Based on the following flashcard content, describe a simple, clean, and iconic image that would help a student remember this concept.
+
+**Flashcard Front:** ""{frontText}""
+**Flashcard Back:** ""{backText}""
+
+Describe only the visual elements of the image. Do not explain why. Just describe what to draw. Be literal.
+
+**Example:** If the card is about an API, a good description would be: ""A simple diagram of a restaurant scene where a waiter takes an order from a customer to the kitchen.""
+
+Your description:";
         }
     }
 }

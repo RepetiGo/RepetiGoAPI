@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Interfaces.Services
+﻿namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IEmailSenderService
     {

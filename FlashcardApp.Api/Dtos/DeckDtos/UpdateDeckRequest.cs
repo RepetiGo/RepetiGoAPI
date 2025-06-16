@@ -1,6 +1,8 @@
-﻿namespace FlashcardApp.Api.Dtos.DeckDtos
+﻿using RepetiGo.Api.Enums;
+
+namespace RepetiGo.Api.Dtos.DeckDtos
 {
-    public class UpdateDeckRequestDto
+    public class UpdateDeckRequest
     {
         [MinLength(1)]
         [MaxLength(100)]
@@ -10,7 +12,7 @@
 
         [MaxLength(500)]
         [Display(Name = "Description")]
-        public string? Description { get; set; } = null;
+        public string Description { get; set; } = string.Empty;
 
         [Display(Name = "Visibility")]
         [Required(ErrorMessage = "Visibility is required")]

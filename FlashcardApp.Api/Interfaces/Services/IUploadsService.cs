@@ -1,10 +1,11 @@
-﻿using FlashcardApp.Api.Dtos.UploadDtos;
+﻿using RepetiGo.Api.Dtos.UploadDtos;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IUploadsService
     {
-        Task<ImageUploadResponseDto> UploadImageAsync(IFormFile formFile);
-        Task<ImageUploadResponseDto> DeleteImageAsync(string oldAvatarPublicId);
+        Task<ImageUploadResponse> UploadImageAsync(IFormFile formFile);
+        Task<ImageUploadResponse> UploadImageAsync(byte[] bytes);
+        Task<ImageUploadResponse> DeleteImageAsync(string oldAvatarPublicId);
     }
 }

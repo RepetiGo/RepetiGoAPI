@@ -1,11 +1,13 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
-using FlashcardApp.Api.Dtos.UploadDtos;
-
 using Microsoft.Extensions.Options;
 
-namespace FlashcardApp.Api.Services
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Dtos.UploadDtos;
+using RepetiGo.Api.Interfaces.Services;
+
+namespace RepetiGo.Api.Services
 {
     public class UploadsService : IUploadsService
     {
@@ -23,11 +25,11 @@ namespace FlashcardApp.Api.Services
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<ImageUploadResponseDto> DeleteImageAsync(string oldAvatarPublicId)
+        public async Task<ImageUploadResponse> DeleteImageAsync(string oldAvatarPublicId)
         {
             if (string.IsNullOrEmpty(oldAvatarPublicId))
             {
-                return new ImageUploadResponseDto
+                return new ImageUploadResponse
                 {
                     IsSuccess = false,
                     ErrorMessage = "Public ID is required for deletion."
@@ -35,18 +37,57 @@ namespace FlashcardApp.Api.Services
             }
             var deleteParams = new DeletionParams(oldAvatarPublicId);
             var deletionResult = await _cloudinary.DestroyAsync(deleteParams);
-            return new ImageUploadResponseDto
+            return new ImageUploadResponse
             {
                 IsSuccess = deletionResult.Result == "ok",
                 ErrorMessage = deletionResult.Error?.Message ?? string.Empty
             };
         }
 
-        public async Task<ImageUploadResponseDto> UploadImageAsync(IFormFile formFile)
+        public async Task<ImageUploadResponse> UploadImageAsync(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+            {
+                return new ImageUploadResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "Upload failed."
+                };
+            }
+
+            var uploadResult = new ImageUploadResult();
+            using (var stream = new MemoryStream(bytes))
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription("image", stream),
+                    UploadPreset = _cloudinaryConfig.UploadPreset,
+                };
+                uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            }
+
+            if (uploadResult.Error != null)
+            {
+                return new ImageUploadResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = uploadResult.Error.Message
+                };
+            }
+
+            return new ImageUploadResponse
+            {
+                IsSuccess = true,
+                SecureUrl = uploadResult.SecureUrl.ToString(),
+                PublicId = uploadResult.PublicId
+            };
+        }
+
+        public async Task<ImageUploadResponse> UploadImageAsync(IFormFile formFile)
         {
             if (formFile == null || formFile.Length == 0)
             {
-                return new ImageUploadResponseDto
+                return new ImageUploadResponse
                 {
                     IsSuccess = false,
                     ErrorMessage = "Upload failed."
@@ -67,14 +108,14 @@ namespace FlashcardApp.Api.Services
 
             if (uploadResult.Error != null)
             {
-                return new ImageUploadResponseDto
+                return new ImageUploadResponse
                 {
                     IsSuccess = false,
                     ErrorMessage = uploadResult.Error.Message
                 };
             }
 
-            return new ImageUploadResponseDto
+            return new ImageUploadResponse
             {
                 IsSuccess = true,
                 SecureUrl = uploadResult.SecureUrl.ToString(),

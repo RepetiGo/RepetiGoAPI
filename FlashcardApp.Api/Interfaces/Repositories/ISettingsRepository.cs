@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Interfaces.Repositories
+﻿using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Interfaces.Repositories
 {
     public interface ISettingsRepository : IGenericRepository<Settings>
     {

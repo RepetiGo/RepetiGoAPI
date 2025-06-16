@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.UserDtos
+﻿namespace RepetiGo.Api.Dtos.UserDtos
 {
-    public class UserResponseDto
+    public class UserResponse
     {
         public string Id { get; set; } = string.Empty;
 

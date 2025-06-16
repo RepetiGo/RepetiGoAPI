@@ -1,9 +1,12 @@
-﻿using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.ReviewDtos;
+﻿using Microsoft.AspNetCore.Authorization;
 
-using Microsoft.AspNetCore.Authorization;
+using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.ReviewDtos;
+using RepetiGo.Api.Extensions;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
 
-namespace FlashcardApp.Api.Controllers
+namespace RepetiGo.Api.Controllers
 {
     [Authorize]
     [Route("api/reviews")]
@@ -18,11 +21,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<ServiceResult<ICollection<CardResponseDto>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ICollection<CardResponseDto>>.Failure(
+                return BadRequest(ServiceResult<ICollection<CardResponse>>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -33,17 +36,17 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost("decks/{deckId:int}/cards/{cardId:int}")]
-        public async Task<ActionResult<ServiceResult<CardResponseDto>>> ReviewCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] ReviewRequestDto reviewRequestDto)
+        public async Task<ActionResult<ServiceResult<CardResponse>>> ReviewCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] ReviewRequest reviewRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<CardResponseDto>.Failure(
+                return BadRequest(ServiceResult<CardResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _reviewsService.ReviewCardAsync(deckId, cardId, reviewRequestDto, User);
+            var result = await _reviewsService.ReviewCardAsync(deckId, cardId, reviewRequest, User);
             return result.ToActionResult();
         }
     }

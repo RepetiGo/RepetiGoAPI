@@ -1,7 +1,6 @@
-﻿
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 
-namespace FlashcardApp.Api.Helpers
+namespace RepetiGo.Api.Helpers
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {
@@ -17,7 +16,7 @@ namespace FlashcardApp.Api.Helpers
             Exception exception,
             CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+            _logger.LogError(exception, "An unhandled exception occurred (GlobalExceptionHandler): {Message}", exception.Message);
 
             var status = exception switch
             {

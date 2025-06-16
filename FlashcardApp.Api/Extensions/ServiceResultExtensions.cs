@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Extensions
+﻿using RepetiGo.Api.Helpers;
+
+namespace RepetiGo.Api.Extensions
 {
     public static class ServiceResultExtensions
     {

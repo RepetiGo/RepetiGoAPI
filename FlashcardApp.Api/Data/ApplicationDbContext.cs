@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Data
+﻿using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

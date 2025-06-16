@@ -1,8 +1,11 @@
-﻿using FlashcardApp.Api.Dtos.ProfileDtos;
+﻿using Microsoft.AspNetCore.Authorization;
 
-using Microsoft.AspNetCore.Authorization;
+using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Extensions;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
 
-namespace FlashcardApp.Api.Controllers
+namespace RepetiGo.Api.Controllers
 {
     [Authorize]
     [Route("api/profiles")]
@@ -17,11 +20,11 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpGet("profile")]
-        public async Task<ActionResult<ServiceResult<ProfileResponseDto>>> GetProfile()
+        public async Task<ActionResult<ServiceResult<ProfileResponse>>> GetProfile()
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                return BadRequest(ServiceResult<ProfileResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -32,40 +35,40 @@ namespace FlashcardApp.Api.Controllers
         }
 
         [HttpPost("update-username")]
-        public async Task<ActionResult<ServiceResult<ProfileResponseDto>>> UpdateUsername([FromBody] UpdateUsernameRequestDto updateUsernameRequestDto)
+        public async Task<ActionResult<ServiceResult<ProfileResponse>>> UpdateUsername([FromBody] UpdateUsernameRequest updateUsernameRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                return BadRequest(ServiceResult<ProfileResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
-            var result = await _usersService.UpdateUsername(updateUsernameRequestDto, User);
+            var result = await _usersService.UpdateUsername(updateUsernameRequest, User);
             return result.ToActionResult();
         }
 
         [HttpPost("update-avatar")]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<ServiceResult<ProfileResponseDto>>> UpdateAvatar([FromForm] UpdateAvatarRequestDto updateAvatarRequestDto)
+        public async Task<ActionResult<ServiceResult<ProfileResponse>>> UpdateAvatar([FromForm] UpdateAvatarRequest updateAvatarRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                return BadRequest(ServiceResult<ProfileResponse>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            if (updateAvatarRequestDto.File == null || updateAvatarRequestDto.File.Length == 0)
+            if (updateAvatarRequest.File == null || updateAvatarRequest.File.Length == 0)
             {
-                return BadRequest(ServiceResult<ProfileResponseDto>.Failure(
+                return BadRequest(ServiceResult<ProfileResponse>.Failure(
                     "Avatar file is required",
                     HttpStatusCode.BadRequest
                 ));
             }
 
-            var result = await _usersService.UpdateAvatar(updateAvatarRequestDto, User);
+            var result = await _usersService.UpdateAvatar(updateAvatarRequest, User);
             return result.ToActionResult();
         }
     }

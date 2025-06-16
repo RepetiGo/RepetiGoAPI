@@ -1,6 +1,8 @@
-﻿namespace FlashcardApp.Api.Dtos.CardDtos
+﻿using RepetiGo.Api.Enums;
+
+namespace RepetiGo.Api.Dtos.CardDtos
 {
-    public class CardResponseDto
+    public class CardResponse
     {
         public int Id { get; set; }
 

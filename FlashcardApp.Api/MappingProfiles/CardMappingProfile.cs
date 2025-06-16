@@ -1,16 +1,17 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.MappingProfiles
+namespace RepetiGo.Api.MappingProfiles
 {
     public class CardMappingProfile : Profile
     {
         public CardMappingProfile()
         {
-            CreateMap<CreateCardRequestDto, Card>();
-            CreateMap<UpdateCardRequestDto, Card>();
-            CreateMap<Card, CardResponseDto>();
+            CreateMap<CreateCardRequest, Card>();
+            CreateMap<UpdateCardRequest, Card>();
+            CreateMap<Card, CardResponse>();
         }
     }
 }

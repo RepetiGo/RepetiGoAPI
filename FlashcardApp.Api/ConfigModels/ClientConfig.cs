@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.ConfigModels
+﻿namespace RepetiGo.Api.ConfigModels
 {
     public class ClientConfig
     {

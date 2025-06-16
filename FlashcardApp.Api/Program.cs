@@ -1,6 +1,11 @@
-using FlashcardApp.Api.Interfaces;
+using RepetiGo.Api.Extensions;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Repositories;
+using RepetiGo.Api.Services;
 
-namespace FlashcardApp.Api
+namespace RepetiGo.Api
 {
     public class Program
     {
@@ -36,6 +41,7 @@ namespace FlashcardApp.Api
                 .AddScoped<ISettingsService, SettingsService>()
                 .AddScoped<IEmailSenderService, EmailSenderService>()
                 .AddScoped<IUploadsService, UploadsService>()
+                .AddScoped<IAiGeneratorService, AiGeneratorService>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
                 .AddScoped<ResponseTemplate>()
                 .AddScoped<ResetCode>();

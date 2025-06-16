@@ -5,9 +5,6 @@ using System.Text.Encodings.Web;
 
 using AutoMapper;
 
-using FlashcardApp.Api.Dtos.ProfileDtos;
-using FlashcardApp.Api.Dtos.UserDtos;
-
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,7 +12,14 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FlashcardApp.Api.Services
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.UserDtos;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Services
 {
     public class UsersService : IUsersService
     {
@@ -29,7 +33,7 @@ namespace FlashcardApp.Api.Services
         private readonly ResponseTemplate _responseTemplate;
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly ISettingsService _settingsService;
-        //Hashtable contains currently active password reset codes
+        //Hash table contains currently active password reset codes
         private readonly ResetCode _resetCode;
         private readonly IUploadsService _uploadsService;
 
@@ -59,9 +63,9 @@ namespace FlashcardApp.Api.Services
             _uploadsService = uploadsService;
         }
 
-        public async Task<ServiceResult<object>> Register(RegisterRequestDto registerRequestDto)
+        public async Task<ServiceResult<object>> Register(RegisterRequest registerRequest)
         {
-            var existingUser = await _userManager.FindByEmailAsync(registerRequestDto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(registerRequest.Email);
             if (existingUser != null)
             {
                 return ServiceResult<object>.Failure(
@@ -72,11 +76,11 @@ namespace FlashcardApp.Api.Services
 
             var user = new ApplicationUser
             {
-                UserName = registerRequestDto.Email,
-                Email = registerRequestDto.Email,
+                UserName = registerRequest.Email,
+                Email = registerRequest.Email,
             };
 
-            var result = await _userManager.CreateAsync(user, registerRequestDto.Password);
+            var result = await _userManager.CreateAsync(user, registerRequest.Password);
             if (!result.Succeeded)
             {
                 return ServiceResult<object>.Failure(
@@ -96,7 +100,7 @@ namespace FlashcardApp.Api.Services
             }
 
             // Send confirmation email
-            var isSent = await SendEmailAsync(registerRequestDto.Email, user);
+            var isSent = await SendEmailAsync(registerRequest.Email, user);
             if (!isSent)
             {
                 await _userManager.DeleteAsync(user); // Clean up user if email sending fails
@@ -180,21 +184,21 @@ namespace FlashcardApp.Api.Services
             );
         }
 
-        public async Task<ServiceResult<UserResponseDto>> LogIn(LogInRequestDto logInRequestDto)
+        public async Task<ServiceResult<UserResponse>> LogIn(LogInRequest logInRequest)
         {
-            var user = await _userManager.FindByEmailAsync(logInRequestDto.Email);
+            var user = await _userManager.FindByEmailAsync(logInRequest.Email);
             if (user is null)
             {
-                return ServiceResult<UserResponseDto>.Failure(
+                return ServiceResult<UserResponse>.Failure(
                     "User not found",
                     HttpStatusCode.Unauthorized
                 );
             }
 
-            var isCorrect = await _userManager.CheckPasswordAsync(user, logInRequestDto.Password);
+            var isCorrect = await _userManager.CheckPasswordAsync(user, logInRequest.Password);
             if (!isCorrect)
             {
-                return ServiceResult<UserResponseDto>.Failure(
+                return ServiceResult<UserResponse>.Failure(
                     "Incorrect password",
                     HttpStatusCode.Unauthorized
                 );
@@ -202,45 +206,45 @@ namespace FlashcardApp.Api.Services
 
             if (!await _userManager.IsEmailConfirmedAsync(user))
             {
-                return ServiceResult<UserResponseDto>.Failure(
+                return ServiceResult<UserResponse>.Failure(
                     "Email not confirmed. Please check your email for confirmation link.",
                     HttpStatusCode.Unauthorized
                 );
             }
 
-            return ServiceResult<UserResponseDto>.Success(
+            return ServiceResult<UserResponse>.Success(
                 await GenerateTokensAsync(user),
                 HttpStatusCode.OK
             );
         }
 
-        public async Task<ServiceResult<UserResponseDto>> RefreshToken(string userId, RefreshTokenRequestDto refreshTokenRequestDto)
+        public async Task<ServiceResult<UserResponse>> RefreshToken(string userId, RefreshTokenRequest refreshTokenRequest)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return ServiceResult<UserResponseDto>.Failure(
+                return ServiceResult<UserResponse>.Failure(
                     "User not found",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            var tokens = await RefreshTokenAsync(user, refreshTokenRequestDto.RefreshToken);
+            var tokens = await RefreshTokenAsync(user, refreshTokenRequest.RefreshToken);
             if (tokens is null)
             {
-                return ServiceResult<UserResponseDto>.Failure(
+                return ServiceResult<UserResponse>.Failure(
                     "Invalid refresh token",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            return ServiceResult<UserResponseDto>.Success(
+            return ServiceResult<UserResponse>.Success(
                 tokens,
                 HttpStatusCode.OK
             );
         }
 
-        public async Task<ServiceResult<object>> LogOut(LogOutRequestDto logOutRequestDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<object>> LogOut(LogOutRequest logOutRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -260,7 +264,7 @@ namespace FlashcardApp.Api.Services
                 );
             }
 
-            var result = await RevokeRefreshTokenAsync(user, logOutRequestDto.RefreshToken);
+            var result = await RevokeRefreshTokenAsync(user, logOutRequest.RefreshToken);
             if (!result)
             {
                 return ServiceResult<object>.Failure(
@@ -275,12 +279,12 @@ namespace FlashcardApp.Api.Services
             );
         }
 
-        public async Task<ServiceResult<ProfileResponseDto>> GetProfile(ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ProfileResponse>> GetProfile(ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -289,26 +293,26 @@ namespace FlashcardApp.Api.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not found",
                     HttpStatusCode.NotFound
                 );
             }
 
-            var profileResponseDto = _mapper.Map<ProfileResponseDto>(user);
+            var profileResponse = _mapper.Map<ProfileResponse>(user);
 
-            return ServiceResult<ProfileResponseDto>.Success(
-                profileResponseDto,
+            return ServiceResult<ProfileResponse>.Success(
+                profileResponse,
                 HttpStatusCode.OK
             );
         }
 
-        public async Task<ServiceResult<ProfileResponseDto>> UpdateUsername(UpdateUsernameRequestDto updateUsernameRequestDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ProfileResponse>> UpdateUsername(UpdateUsernameRequest updateUsernameRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -317,33 +321,33 @@ namespace FlashcardApp.Api.Services
             var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not found",
                     HttpStatusCode.NotFound
                 );
             }
 
-            user.UserName = updateUsernameRequestDto.NewUsername;
+            user.UserName = updateUsernameRequest.NewUsername;
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     result.Errors.FirstOrDefault()?.Description ?? "Failed to update username",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            var profileResponseDto = _mapper.Map<ProfileResponseDto>(user);
+            var profileResponse = _mapper.Map<ProfileResponse>(user);
 
-            return ServiceResult<ProfileResponseDto>.Success(
-                profileResponseDto,
+            return ServiceResult<ProfileResponse>.Success(
+                profileResponse,
                 HttpStatusCode.OK
             );
         }
 
-        private async Task<UserResponseDto> GenerateTokensAsync(ApplicationUser user)
+        private async Task<UserResponse> GenerateTokensAsync(ApplicationUser user)
         {
-            return new UserResponseDto
+            return new UserResponse
             {
                 Id = user.Id,
                 Email = user.Email!,
@@ -352,7 +356,7 @@ namespace FlashcardApp.Api.Services
             };
         }
 
-        private async Task<UserResponseDto?> RefreshTokenAsync(ApplicationUser user, string refreshToken)
+        private async Task<UserResponse?> RefreshTokenAsync(ApplicationUser user, string refreshToken)
         {
             var isRevoked = await RevokeRefreshTokenAsync(user, refreshToken);
 
@@ -443,9 +447,9 @@ namespace FlashcardApp.Api.Services
             });
         }
 
-        public async Task<ServiceResult<object>> ForgotPassword(ForgotPasswordRequestDto forgotPasswordRequestDto)
+        public async Task<ServiceResult<object>> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
         {
-            var existingUser = await _userManager.FindByEmailAsync(forgotPasswordRequestDto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(forgotPasswordRequest.Email);
             if (existingUser == null)
             {
                 return ServiceResult<object>.Failure(
@@ -454,8 +458,8 @@ namespace FlashcardApp.Api.Services
                 );
             }
             var subject = "Password reset code";
-            string code = _resetCode.GenerateCode(forgotPasswordRequestDto.Email);
-            await _emailSenderService.SendEmailAsync(forgotPasswordRequestDto.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
+            string code = _resetCode.GenerateCode(forgotPasswordRequest.Email);
+            await _emailSenderService.SendEmailAsync(forgotPasswordRequest.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
 
             return ServiceResult<object>.Success(
                 new { Message = "Password reset code sent. Please check your email, including spam folder." },
@@ -463,9 +467,9 @@ namespace FlashcardApp.Api.Services
                 );
         }
 
-        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordRequestDto resetPasswordRequestDto)
+        public async Task<ServiceResult<object>> ResetPassword(ResetPasswordRequest resetPasswordRequest)
         {
-            var existingUser = await _userManager.FindByEmailAsync(resetPasswordRequestDto.Email);
+            var existingUser = await _userManager.FindByEmailAsync(resetPasswordRequest.Email);
             if (existingUser == null)
             {
                 return ServiceResult<object>.Failure(
@@ -473,8 +477,8 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.NotFound
                 );
             }
-            string code = resetPasswordRequestDto.Code;
-            if (string.IsNullOrEmpty(code) || !_resetCode.ValidateResetCode(resetPasswordRequestDto.Email, code))
+            string code = resetPasswordRequest.Code;
+            if (string.IsNullOrEmpty(code) || !_resetCode.ValidateResetCode(resetPasswordRequest.Email, code))
             {
                 return ServiceResult<object>.Failure(
                     "Reset code is wrong or has expired.",
@@ -493,7 +497,7 @@ namespace FlashcardApp.Api.Services
                     HttpStatusCode.InternalServerError
                 );
             }
-            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPasswordRequestDto.Password);
+            var result = await _userManager.ResetPasswordAsync(existingUser, resetToken, resetPasswordRequest.Password);
 
             if (!result.Succeeded)
             {
@@ -512,38 +516,38 @@ namespace FlashcardApp.Api.Services
 
         }
 
-        public async Task<ServiceResult<ProfileResponseDto>> UpdateAvatar(UpdateAvatarRequestDto updateAvatarRequestDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ProfileResponse>> UpdateAvatar(UpdateAvatarRequest updateAvatarRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
             }
 
-            var user = _userManager.FindByIdAsync(userId).Result;
+            var user = await _userManager.FindByIdAsync(userId);
             if (user is null)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "User not found",
                     HttpStatusCode.NotFound
                 );
             }
 
-            if (updateAvatarRequestDto.File == null || updateAvatarRequestDto.File.Length == 0)
+            if (updateAvatarRequest.File == null || updateAvatarRequest.File.Length == 0)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     "Avatar file is required",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            var uploadResult = await _uploadsService.UploadImageAsync(updateAvatarRequestDto.File);
+            var uploadResult = await _uploadsService.UploadImageAsync(updateAvatarRequest.File);
             if (!uploadResult.IsSuccess)
             {
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     uploadResult.ErrorMessage ?? "Failed to upload avatar",
                     HttpStatusCode.InternalServerError
                 );
@@ -556,7 +560,7 @@ namespace FlashcardApp.Api.Services
                 var deleteResult = await _uploadsService.DeleteImageAsync(oldAvatarPublicId);
                 if (!deleteResult.IsSuccess)
                 {
-                    return ServiceResult<ProfileResponseDto>.Failure(
+                    return ServiceResult<ProfileResponse>.Failure(
                         deleteResult.ErrorMessage ?? "Failed to delete old avatar",
                         HttpStatusCode.InternalServerError
                     );
@@ -572,16 +576,16 @@ namespace FlashcardApp.Api.Services
             {
                 // Delete the newly uploaded image since we're rolling back
                 await _uploadsService.DeleteImageAsync(uploadResult.PublicId);
-                return ServiceResult<ProfileResponseDto>.Failure(
+                return ServiceResult<ProfileResponse>.Failure(
                     updateResult.Errors.FirstOrDefault()?.Description ?? "Failed to update avatar",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            var profileResponseDto = _mapper.Map<ProfileResponseDto>(user);
+            var profileResponse = _mapper.Map<ProfileResponse>(user);
 
-            return ServiceResult<ProfileResponseDto>.Success(
-                profileResponseDto,
+            return ServiceResult<ProfileResponse>.Success(
+                profileResponse,
                 HttpStatusCode.OK
             );
         }

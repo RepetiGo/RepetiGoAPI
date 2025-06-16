@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.CardDtos
+﻿namespace RepetiGo.Api.Dtos.CardDtos
 {
-    public class CreateCardRequestDto
+    public class CreateCardRequest
     {
         [MinLength(1)]
         [MaxLength(500)]
@@ -15,5 +15,8 @@
         public string BackText { get; set; } = string.Empty;
 
         public IFormFile? ImageFile { get; set; }
+
+        public string ImageUrl { get; set; } = string.Empty;
+        public string ImagePublicId { get; set; } = string.Empty;
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.UserDtos
+﻿namespace RepetiGo.Api.Dtos.UserDtos
 {
-    public class ForgotPasswordRequestDto
+    public class ForgotPasswordRequest
     {
         [Required(ErrorMessage = "Please enter your email address.")]
         [EmailAddress(ErrorMessage = "The email address is not valid.")]

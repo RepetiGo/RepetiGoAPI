@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.ProfileDtos
+﻿namespace RepetiGo.Api.Dtos.ProfileDtos
 {
-    public class UpdateAvatarRequestDto
+    public class UpdateAvatarRequest
     {
         [Required(ErrorMessage = "File is required.")]
         public IFormFile File { get; set; } = null!;

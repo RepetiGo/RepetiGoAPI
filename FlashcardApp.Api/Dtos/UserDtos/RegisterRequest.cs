@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.UserDtos
+﻿namespace RepetiGo.Api.Dtos.UserDtos
 {
-    public class LogInRequestDto
+    public class RegisterRequest
     {
         [EmailAddress]
         [Display(Name = "Email")]
@@ -9,8 +9,8 @@
 
         [MinLength(8)]
         [Display(Name = "Password")]
-        [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
+        [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = string.Empty;
     }
 }

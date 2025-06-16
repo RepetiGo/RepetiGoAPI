@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.ReviewDtos;
-using FlashcardApp.Api.Interfaces;
+using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.ReviewDtos;
+using RepetiGo.Api.Enums;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.Services
+namespace RepetiGo.Api.Services
 {
     public class ReviewsService : IReviewsService
     {
@@ -17,12 +21,12 @@ namespace FlashcardApp.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ServiceResult<ICollection<CardResponseDto>>> GetDueCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ICollection<CardResponse>>> GetDueCardsByDeckIdAsync(int deckId, PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ICollection<CardResponseDto>>.Failure(
+                return ServiceResult<ICollection<CardResponse>>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -31,7 +35,7 @@ namespace FlashcardApp.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<ICollection<CardResponseDto>>.Failure(
+                return ServiceResult<ICollection<CardResponse>>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -39,7 +43,7 @@ namespace FlashcardApp.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<ICollection<CardResponseDto>>.Failure(
+                return ServiceResult<ICollection<CardResponse>>.Failure(
                     "You do not have permission to access this deck",
                     HttpStatusCode.Forbidden
                 );
@@ -50,17 +54,17 @@ namespace FlashcardApp.Api.Services
                 orderBy: q => q.OrderBy(c => c.NextReview),
                 paginationQuery: paginationQuery);
 
-            var CardDtos = _mapper.Map<ICollection<CardResponseDto>>(dueCards);
+            var CardsResponse = _mapper.Map<ICollection<CardResponse>>(dueCards);
 
-            return ServiceResult<ICollection<CardResponseDto>>.Success(CardDtos, HttpStatusCode.OK);
+            return ServiceResult<ICollection<CardResponse>>.Success(CardsResponse, HttpStatusCode.OK);
         }
 
-        public async Task<ServiceResult<CardResponseDto>> ReviewCardAsync(int deckId, int cardId, ReviewRequestDto reviewRequestDto, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<CardResponse>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -69,7 +73,7 @@ namespace FlashcardApp.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -77,7 +81,7 @@ namespace FlashcardApp.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "You do not have permission to access this deck",
                     HttpStatusCode.Forbidden
                 );
@@ -86,7 +90,7 @@ namespace FlashcardApp.Api.Services
             var card = await _unitOfWork.CardsRepository.GetByIdAsync(cardId);
             if (card is null || card.DeckId != deckId)
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "Card not found",
                     HttpStatusCode.NotFound
                 );
@@ -94,7 +98,7 @@ namespace FlashcardApp.Api.Services
 
             if (card.NextReview > DateTime.UtcNow)
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "Card is not due for review",
                     HttpStatusCode.BadRequest
                 );
@@ -103,24 +107,24 @@ namespace FlashcardApp.Api.Services
             var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
             if (settings is null)
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "Settings not found",
                     HttpStatusCode.NotFound
                 );
             }
 
-            if (!Enum.IsDefined(reviewRequestDto.Rating))
+            if (!Enum.IsDefined(reviewRequest.Rating))
             {
-                return ServiceResult<CardResponseDto>.Failure(
+                return ServiceResult<CardResponse>.Failure(
                     "Invalid review rating",
                     HttpStatusCode.BadRequest
                 );
             }
 
-            await ProcessReview(card, reviewRequestDto.Rating, settings);
+            await ProcessReview(card, reviewRequest.Rating, settings);
 
-            var cardDto = _mapper.Map<CardResponseDto>(card);
-            return ServiceResult<CardResponseDto>.Success(cardDto, HttpStatusCode.OK);
+            var cardResponse = _mapper.Map<CardResponse>(card);
+            return ServiceResult<CardResponse>.Success(cardResponse, HttpStatusCode.OK);
         }
 
         private async Task ProcessReview(Card card, ReviewRating reviewRating, Settings settings)

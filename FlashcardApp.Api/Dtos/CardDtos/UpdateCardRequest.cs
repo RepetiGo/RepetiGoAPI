@@ -1,6 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.CardDtos
+﻿namespace RepetiGo.Api.Dtos.CardDtos
 {
-    public class UpdateCardRequestDto
+    public class UpdateCardRequest
     {
         [MinLength(1)]
         [MaxLength(500)]
