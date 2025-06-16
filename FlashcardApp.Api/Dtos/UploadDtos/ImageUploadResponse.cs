@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.UploadDtos
+﻿namespace RepetiGo.Api.Dtos.UploadDtos
 {
     public class ImageUploadResponse
     {

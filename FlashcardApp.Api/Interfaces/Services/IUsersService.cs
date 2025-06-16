@@ -1,7 +1,8 @@
-﻿using FlashcardApp.Api.Dtos.ProfileDtos;
-using FlashcardApp.Api.Dtos.UserDtos;
+﻿using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.UserDtos;
+using RepetiGo.Api.Helpers;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IUsersService
     {

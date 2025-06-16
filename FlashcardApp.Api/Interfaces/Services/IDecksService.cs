@@ -1,6 +1,7 @@
-﻿using FlashcardApp.Api.Dtos.DeckDtos;
+﻿using RepetiGo.Api.Dtos.DeckDtos;
+using RepetiGo.Api.Helpers;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IDecksService
     {

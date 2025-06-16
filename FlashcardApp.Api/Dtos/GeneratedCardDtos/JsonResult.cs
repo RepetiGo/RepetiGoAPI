@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.GeneratedCardDtos
+﻿namespace RepetiGo.Api.Dtos.GeneratedCardDtos
 {
     public class JsonResult
     {

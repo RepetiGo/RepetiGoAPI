@@ -1,7 +1,6 @@
-﻿
-using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Diagnostics;
 
-namespace FlashcardApp.Api.Helpers
+namespace RepetiGo.Api.Helpers
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {

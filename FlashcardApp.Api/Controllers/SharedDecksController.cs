@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Controllers
+﻿namespace RepetiGo.Api.Controllers
 {
     [Route("api/shared/decks")]
     [ApiController]

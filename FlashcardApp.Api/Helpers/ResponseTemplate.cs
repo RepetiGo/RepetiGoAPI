@@ -1,5 +1,4 @@
-﻿
-namespace FlashcardApp.Api.Helpers
+﻿namespace RepetiGo.Api.Helpers
 {
     public class ResponseTemplate
     {

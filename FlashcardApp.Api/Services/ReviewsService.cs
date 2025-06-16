@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.ReviewDtos;
-using FlashcardApp.Api.Interfaces;
+using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.ReviewDtos;
+using RepetiGo.Api.Enums;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.Services
+namespace RepetiGo.Api.Services
 {
     public class ReviewsService : IReviewsService
     {

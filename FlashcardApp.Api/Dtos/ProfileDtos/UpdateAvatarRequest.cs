@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.ProfileDtos
+﻿namespace RepetiGo.Api.Dtos.ProfileDtos
 {
     public class UpdateAvatarRequest
     {

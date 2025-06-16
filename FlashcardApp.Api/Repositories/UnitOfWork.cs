@@ -1,7 +1,8 @@
-﻿using FlashcardApp.Api.Interfaces;
-using FlashcardApp.Api.Interfaces.Repositories;
+﻿using RepetiGo.Api.Data;
+using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Repositories;
 
-namespace FlashcardApp.Api.Repositories
+namespace RepetiGo.Api.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {

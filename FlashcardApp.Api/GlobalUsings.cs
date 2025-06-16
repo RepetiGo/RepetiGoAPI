@@ -2,17 +2,17 @@
 global using System.Net;
 global using System.Security.Claims;
 
-global using FlashcardApp.Api.ConfigModels;
-global using FlashcardApp.Api.Data;
-global using FlashcardApp.Api.Enums;
-global using FlashcardApp.Api.Extensions;
-global using FlashcardApp.Api.Helpers;
-global using FlashcardApp.Api.Interfaces.Services;
-global using FlashcardApp.Api.Models;
-global using FlashcardApp.Api.Repositories;
-global using FlashcardApp.Api.Services;
-
 global using Microsoft.AspNetCore.Identity;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
+
+global using RepetiGo.Api.ConfigModels;
+global using RepetiGo.Api.Data;
+global using RepetiGo.Api.Enums;
+global using RepetiGo.Api.Extensions;
+global using RepetiGo.Api.Helpers;
+global using RepetiGo.Api.Interfaces.Services;
+global using RepetiGo.Api.Models;
+global using RepetiGo.Api.Repositories;
+global using RepetiGo.Api.Services;

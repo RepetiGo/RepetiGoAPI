@@ -5,9 +5,6 @@ using System.Text.Encodings.Web;
 
 using AutoMapper;
 
-using FlashcardApp.Api.Dtos.ProfileDtos;
-using FlashcardApp.Api.Dtos.UserDtos;
-
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.WebUtilities;
@@ -15,7 +12,14 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FlashcardApp.Api.Services
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.UserDtos;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Services
 {
     public class UsersService : IUsersService
     {

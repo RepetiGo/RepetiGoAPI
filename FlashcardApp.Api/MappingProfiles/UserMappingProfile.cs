@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.MappingProfiles
+namespace RepetiGo.Api.MappingProfiles
 {
     public class UserMappingProfile : Profile
     {

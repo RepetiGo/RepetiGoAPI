@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.ProfileDtos
+﻿using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Dtos.ProfileDtos
 {
     public class ProfileResponse : ApplicationUser
     {

@@ -1,6 +1,7 @@
-﻿using FlashcardApp.Api.Interfaces;
+﻿using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Services;
 
-namespace FlashcardApp.Api.Services
+namespace RepetiGo.Api.Services
 {
     public class SettingsService : ISettingsService
     {

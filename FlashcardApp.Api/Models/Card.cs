@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Models
+﻿using RepetiGo.Api.Enums;
+
+namespace RepetiGo.Api.Models
 {
     public class Card
     {

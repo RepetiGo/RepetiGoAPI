@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.UserDtos
+﻿namespace RepetiGo.Api.Dtos.UserDtos
 {
     public class LogOutRequest
     {

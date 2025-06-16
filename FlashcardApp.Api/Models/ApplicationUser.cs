@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Models
+﻿namespace RepetiGo.Api.Models
 {
     public class ApplicationUser : IdentityUser
     {

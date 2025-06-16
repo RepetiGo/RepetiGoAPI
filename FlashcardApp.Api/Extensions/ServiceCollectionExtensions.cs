@@ -8,7 +8,12 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FlashcardApp.Api.Extensions
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Data;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Models;
+
+namespace RepetiGo.Api.Extensions
 {
     public static class ServiceCollectionExtensions
     {

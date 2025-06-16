@@ -1,8 +1,11 @@
-﻿using FlashcardApp.Api.Dtos.UserDtos;
+﻿using Microsoft.AspNetCore.Authorization;
 
-using Microsoft.AspNetCore.Authorization;
+using RepetiGo.Api.Dtos.UserDtos;
+using RepetiGo.Api.Extensions;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
 
-namespace FlashcardApp.Api.Controllers
+namespace RepetiGo.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]

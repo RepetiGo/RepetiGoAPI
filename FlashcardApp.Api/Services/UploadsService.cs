@@ -1,11 +1,13 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
-using FlashcardApp.Api.Dtos.UploadDtos;
-
 using Microsoft.Extensions.Options;
 
-namespace FlashcardApp.Api.Services
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Dtos.UploadDtos;
+using RepetiGo.Api.Interfaces.Services;
+
+namespace RepetiGo.Api.Services
 {
     public class UploadsService : IUploadsService
     {

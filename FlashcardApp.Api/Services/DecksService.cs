@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.DeckDtos;
-using FlashcardApp.Api.Interfaces;
+using RepetiGo.Api.Dtos.DeckDtos;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces;
+using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.Services
+namespace RepetiGo.Api.Services
 {
     public class DecksService : IDecksService
     {

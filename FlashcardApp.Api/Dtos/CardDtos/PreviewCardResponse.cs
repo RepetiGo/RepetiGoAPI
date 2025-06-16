@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.CardDtos
+﻿namespace RepetiGo.Api.Dtos.CardDtos
 {
     public class PreviewCardResponse
     {

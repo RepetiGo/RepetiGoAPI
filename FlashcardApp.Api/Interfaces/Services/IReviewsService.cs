@@ -1,7 +1,8 @@
-﻿using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.ReviewDtos;
+﻿using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.ReviewDtos;
+using RepetiGo.Api.Helpers;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IReviewsService
     {

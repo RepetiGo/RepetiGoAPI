@@ -1,13 +1,16 @@
 ﻿
 using System.Text.Json;
 
-using FlashcardApp.Api.Dtos.GeneratedCardDtos;
-
 using Microsoft.Extensions.Options;
 
 using Mscc.GenerativeAI;
 
-namespace FlashcardApp.Api.Services
+using RepetiGo.Api.ConfigModels;
+using RepetiGo.Api.Dtos.GeneratedCardDtos;
+using RepetiGo.Api.Helpers;
+using RepetiGo.Api.Interfaces.Services;
+
+namespace RepetiGo.Api.Services
 {
     public class AiGeneratorService : IAiGeneratorService
     {

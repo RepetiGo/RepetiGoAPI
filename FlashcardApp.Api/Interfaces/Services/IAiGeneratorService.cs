@@ -1,6 +1,6 @@
-﻿using FlashcardApp.Api.Dtos.GeneratedCardDtos;
+﻿using RepetiGo.Api.Dtos.GeneratedCardDtos;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IAiGeneratorService
     {

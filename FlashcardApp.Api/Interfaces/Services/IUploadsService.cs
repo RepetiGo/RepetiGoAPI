@@ -1,6 +1,6 @@
-﻿using FlashcardApp.Api.Dtos.UploadDtos;
+﻿using RepetiGo.Api.Dtos.UploadDtos;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IUploadsService
     {

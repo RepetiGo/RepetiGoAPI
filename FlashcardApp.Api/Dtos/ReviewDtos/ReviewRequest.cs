@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.ReviewDtos
+﻿using RepetiGo.Api.Enums;
+
+namespace RepetiGo.Api.Dtos.ReviewDtos
 {
     public class ReviewRequest
     {

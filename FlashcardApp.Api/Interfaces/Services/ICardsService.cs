@@ -1,7 +1,8 @@
-﻿using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.GeneratedCardDtos;
+﻿using RepetiGo.Api.Dtos.CardDtos;
+using RepetiGo.Api.Dtos.GeneratedCardDtos;
+using RepetiGo.Api.Helpers;
 
-namespace FlashcardApp.Api.Interfaces.Services
+namespace RepetiGo.Api.Interfaces.Services
 {
     public interface ICardsService
     {

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 
-using FlashcardApp.Api.Dtos.DeckDtos;
+using RepetiGo.Api.Dtos.DeckDtos;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.MappingProfiles
+namespace RepetiGo.Api.MappingProfiles
 {
     public class DeckMappingProfile : Profile
     {

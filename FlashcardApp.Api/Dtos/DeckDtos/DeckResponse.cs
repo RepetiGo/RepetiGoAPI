@@ -1,4 +1,6 @@
-﻿namespace FlashcardApp.Api.Dtos.DeckDtos
+﻿using RepetiGo.Api.Enums;
+
+namespace RepetiGo.Api.Dtos.DeckDtos
 {
     public class DeckResponse
     {

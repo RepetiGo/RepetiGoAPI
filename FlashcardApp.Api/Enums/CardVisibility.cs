@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Enums
+﻿namespace RepetiGo.Api.Enums
 {
     public enum CardVisibility
     {

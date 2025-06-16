@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.SettingsDtos
+﻿namespace RepetiGo.Api.Dtos.SettingsDtos
 {
     public class SettingsResponse
     {

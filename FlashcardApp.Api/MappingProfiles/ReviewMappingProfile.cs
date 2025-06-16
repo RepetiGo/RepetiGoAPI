@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace FlashcardApp.Api.MappingProfiles
+namespace RepetiGo.Api.MappingProfiles
 {
     public class ReviewMappingProfile : Profile
     {

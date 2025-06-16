@@ -1,6 +1,8 @@
-﻿using FlashcardApp.Api.Interfaces.Repositories;
+﻿using RepetiGo.Api.Data;
+using RepetiGo.Api.Interfaces.Repositories;
+using RepetiGo.Api.Models;
 
-namespace FlashcardApp.Api.Repositories
+namespace RepetiGo.Api.Repositories
 {
     public class DecksRepository : GenericRepository<Deck>, IDecksRepository
     {
