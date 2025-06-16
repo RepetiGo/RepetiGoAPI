@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 
 using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.GeneratedContentDtos;
+using FlashcardApp.Api.Dtos.GeneratedCardDtos;
 using FlashcardApp.Api.Interfaces;
 
 namespace FlashcardApp.Api.Services

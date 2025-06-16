@@ -1,4 +1,4 @@
-﻿using FlashcardApp.Api.Dtos.GeneratedContentDtos;
+﻿using FlashcardApp.Api.Dtos.GeneratedCardDtos;
 
 namespace FlashcardApp.Api.Interfaces.Services
 {

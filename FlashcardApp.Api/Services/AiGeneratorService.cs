@@ -1,7 +1,7 @@
 ﻿
 using System.Text.Json;
 
-using FlashcardApp.Api.Dtos.GeneratedContentDtos;
+using FlashcardApp.Api.Dtos.GeneratedCardDtos;
 
 using Microsoft.Extensions.Options;
 
@@ -41,7 +41,7 @@ namespace FlashcardApp.Api.Services
 
             try
             {
-                var response = JsonSerializer.Deserialize<Dtos.GeneratedContentDtos.JsonResult>(responseJson.Text!);
+                var response = JsonSerializer.Deserialize<Dtos.GeneratedCardDtos.JsonResult>(responseJson.Text!);
                 if (response is not null && !string.IsNullOrWhiteSpace(response.FrontText) && !string.IsNullOrWhiteSpace(response.BackText))
                 {
                     return new GeneratedContentResult

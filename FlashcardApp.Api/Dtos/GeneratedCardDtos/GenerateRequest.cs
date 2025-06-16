@@ -2,7 +2,7 @@
 
 using Mscc.GenerativeAI;
 
-namespace FlashcardApp.Api.Dtos.GeneratedContentDtos
+namespace FlashcardApp.Api.Dtos.GeneratedCardDtos
 {
     public class GenerateRequest
     {

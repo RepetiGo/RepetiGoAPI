@@ -1,4 +1,4 @@
-﻿namespace FlashcardApp.Api.Dtos.GeneratedContentDtos
+﻿namespace FlashcardApp.Api.Dtos.GeneratedCardDtos
 {
     public class GeneratedContentResult
     {

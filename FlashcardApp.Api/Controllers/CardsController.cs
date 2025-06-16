@@ -1,5 +1,5 @@
 ﻿using FlashcardApp.Api.Dtos.CardDtos;
-using FlashcardApp.Api.Dtos.GeneratedContentDtos;
+using FlashcardApp.Api.Dtos.GeneratedCardDtos;
 
 using Microsoft.AspNetCore.Authorization;
 
