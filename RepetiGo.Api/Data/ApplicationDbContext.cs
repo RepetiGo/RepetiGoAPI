@@ -72,21 +72,21 @@ namespace RepetiGo.Api.Data
                 if (entity.Metadata.FindProperty("CreatedAt") is not null)
                 {
                     entity.Property<DateTime>("CreatedAt")
-                        .HasDefaultValueSql("GETUTCDATE()")
-                        .ValueGeneratedOnAdd();
-                }
-
-                if (entity.Metadata.FindProperty("UpdatedAt") is not null)
-                {
-                    entity.Property<DateTime>("UpdatedAt")
-                        .HasDefaultValueSql("GETUTCDATE()")
-                        .ValueGeneratedOnAddOrUpdate();
+                        .HasDefaultValueSql("GETUTCDATE()") // Only works on INSERT
+                        .ValueGeneratedOnAdd(); // Only works on INSERT
                 }
             }
         }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State == EntityState.Modified && entry.Properties.Any(p => p.Metadata.Name == "UpdatedAt"))
+                {
+                    entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow;
+                }
+            }
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }

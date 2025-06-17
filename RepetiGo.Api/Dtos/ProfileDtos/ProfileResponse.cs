@@ -8,6 +8,6 @@
         public string? AvatarUrl { get; set; }
         public string? AvatarPublicId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 }
