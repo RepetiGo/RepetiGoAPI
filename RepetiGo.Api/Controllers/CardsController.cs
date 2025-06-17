@@ -2,9 +2,7 @@
 
 using RepetiGo.Api.Dtos.CardDtos;
 using RepetiGo.Api.Dtos.GeneratedCardDtos;
-using RepetiGo.Api.Extensions;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
+using RepetiGo.Api.Dtos.ReviewDtos;
 
 namespace RepetiGo.Api.Controllers
 {
@@ -110,6 +108,36 @@ namespace RepetiGo.Api.Controllers
             }
 
             var result = await _cardsService.GenerateCardAsync(generateRequest, User);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("decks/{deckId:int}/due")]
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<ICollection<CardResponse>>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _cardsService.GetDueCardsByDeckIdAsync(deckId, paginationQuery, User);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("decks/{deckId:int}/cards/{cardId:int}/review")]
+        public async Task<ActionResult<ServiceResult<CardResponse>>> ReviewCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] ReviewRequest reviewRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<CardResponse>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _cardsService.ReviewCardAsync(deckId, cardId, reviewRequest, User);
             return result.ToActionResult();
         }
     }

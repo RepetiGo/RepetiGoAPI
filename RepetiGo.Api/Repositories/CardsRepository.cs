@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Data;
-using RepetiGo.Api.Interfaces.Repositories;
-using RepetiGo.Api.Models;
+﻿using RepetiGo.Api.Interfaces.Repositories;
 
 namespace RepetiGo.Api.Repositories
 {

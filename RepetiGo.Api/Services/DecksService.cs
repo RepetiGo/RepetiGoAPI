@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 
 using RepetiGo.Api.Dtos.DeckDtos;
-using RepetiGo.Api.Helpers;
 using RepetiGo.Api.Interfaces;
-using RepetiGo.Api.Interfaces.Services;
-using RepetiGo.Api.Models;
 
 namespace RepetiGo.Api.Services
 {

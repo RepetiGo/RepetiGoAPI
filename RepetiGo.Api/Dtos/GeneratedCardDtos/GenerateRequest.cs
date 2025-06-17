@@ -13,9 +13,9 @@ namespace RepetiGo.Api.Dtos.GeneratedCardDtos
         [Description("The topic for which flashcards will be generated.")]
         public string Topic { get; set; } = string.Empty;
 
-        public string FrontText { get; set; } = string.Empty;
+        public string? FrontText { get; set; }
 
-        public string BackText { get; set; } = string.Empty;
+        public string? BackText { get; set; }
 
         [EnumDataType(typeof(ImagePromptLanguage), ErrorMessage = "Invalid image prompt language.")]
         public ImagePromptLanguage ImagePromptLanguage { get; set; } = ImagePromptLanguage.Auto;

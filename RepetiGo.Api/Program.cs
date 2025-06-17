@@ -1,10 +1,3 @@
-using RepetiGo.Api.Extensions;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces;
-using RepetiGo.Api.Interfaces.Services;
-using RepetiGo.Api.Repositories;
-using RepetiGo.Api.Services;
-
 namespace RepetiGo.Api
 {
     public class Program
@@ -31,13 +24,13 @@ namespace RepetiGo.Api
                 .ConfigureFormOptions()
                 .AddExceptionHandlerService()
                 .AddHttpContextAccessor()
+                .AddHttpLogging(o => { })
                 .AddRateLimitingService();
 
             // Register services
             builder.Services.AddScoped<IUsersService, UsersService>()
                 .AddScoped<IDecksService, DecksService>()
                 .AddScoped<ICardsService, CardsService>()
-                .AddScoped<IReviewsService, ReviewsService>()
                 .AddScoped<ISettingsService, SettingsService>()
                 .AddScoped<IEmailSenderService, EmailSenderService>()
                 .AddScoped<IUploadsService, UploadsService>()
@@ -48,12 +41,14 @@ namespace RepetiGo.Api
 
             var app = builder.Build();
 
+            app.UseHttpLogging();
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/openapi/v1.json", "Flashcard Application");
+                    options.SwaggerEndpoint("/openapi/v1.json", "RepetiGo API");
                 });
             }
             else

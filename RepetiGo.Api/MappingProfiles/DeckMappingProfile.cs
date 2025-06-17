@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 
 using RepetiGo.Api.Dtos.DeckDtos;
-using RepetiGo.Api.Models;
 
 namespace RepetiGo.Api.MappingProfiles
 {

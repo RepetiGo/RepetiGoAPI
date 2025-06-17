@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-
-namespace RepetiGo.Api.Dtos.DeckDtos
+﻿namespace RepetiGo.Api.Dtos.DeckDtos
 {
     public class UpdateDeckRequest
     {
@@ -12,7 +10,7 @@ namespace RepetiGo.Api.Dtos.DeckDtos
 
         [MaxLength(500)]
         [Display(Name = "Description")]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [Display(Name = "Visibility")]
         [Required(ErrorMessage = "Visibility is required")]

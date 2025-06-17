@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
 using RepetiGo.Api.Dtos.ProfileDtos;
-using RepetiGo.Api.Extensions;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Controllers
 {
@@ -34,7 +31,7 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("update-username")]
+        [HttpPost("username")]
         public async Task<ActionResult<ServiceResult<ProfileResponse>>> UpdateUsername([FromBody] UpdateUsernameRequest updateUsernameRequest)
         {
             if (!ModelState.IsValid)
@@ -48,7 +45,7 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("update-avatar")]
+        [HttpPost("avatar")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ServiceResult<ProfileResponse>>> UpdateAvatar([FromForm] UpdateAvatarRequest updateAvatarRequest)
         {

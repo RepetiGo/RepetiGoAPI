@@ -1,5 +1,4 @@
 ﻿using RepetiGo.Api.Interfaces;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Services
 {

@@ -8,10 +8,18 @@ namespace RepetiGo.Api.Helpers
     {
         public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
         {
+            // Get all authentication schemes
             var authenticationSchemes = await schemes.GetAllSchemesAsync();
+
+            // Check if any of the authentication schemes is a Bearer scheme
             if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
             {
-                var securityScheme = new OpenApiSecurityScheme
+                // Ensure the Components section exists
+                document.Components ??= new OpenApiComponents();
+                document.Components.SecuritySchemes ??= new Dictionary<string, OpenApiSecurityScheme>();
+
+                // Add the security scheme to the Components section
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.Http,
@@ -21,15 +29,9 @@ namespace RepetiGo.Api.Helpers
                     Description = "Please enter a valid token"
                 };
 
-                document.Components ??= new OpenApiComponents();
-                if (document.Components.SecuritySchemes == null)
-                {
-                    document.Components.SecuritySchemes = new Dictionary<string, OpenApiSecurityScheme>();
-                }
-
-                document.Components.SecuritySchemes["Bearer"] = securityScheme;
-
-                var securityRequirement = new OpenApiSecurityRequirement
+                // Add security requirement
+                document.SecurityRequirements ??= new List<OpenApiSecurityRequirement>();
+                document.SecurityRequirements.Add(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
@@ -42,10 +44,7 @@ namespace RepetiGo.Api.Helpers
                         },
                         Array.Empty<string>()
                     }
-                };
-
-                document.SecurityRequirements ??= new List<OpenApiSecurityRequirement>();
-                document.SecurityRequirements.Add(securityRequirement);
+                });
             }
         }
     }

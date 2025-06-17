@@ -3,8 +3,8 @@
     public class ImageUploadResponse
     {
         public bool IsSuccess { get; set; }
-        public string SecureUrl { get; set; } = string.Empty;
-        public string PublicId { get; set; } = string.Empty;
-        public string ErrorMessage { get; set; } = string.Empty;
+        public string? SecureUrl { get; set; }
+        public string? PublicId { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

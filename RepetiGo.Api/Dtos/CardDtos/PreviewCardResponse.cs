@@ -6,8 +6,8 @@
 
         public string BackText { get; set; } = string.Empty;
 
-        public string ImageUrl { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
 
-        public string ImagePublicId { get; set; } = string.Empty;
+        public string? ImagePublicId { get; set; }
     }
 }

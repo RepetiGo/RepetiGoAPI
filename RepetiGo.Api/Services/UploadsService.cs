@@ -3,9 +3,7 @@ using CloudinaryDotNet.Actions;
 
 using Microsoft.Extensions.Options;
 
-using RepetiGo.Api.ConfigModels;
 using RepetiGo.Api.Dtos.UploadDtos;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Services
 {

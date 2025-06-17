@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace FlashcardApp.Api.Data.Migrations
+namespace RepetiGo.Api.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddCoreTables : Migration
@@ -30,10 +30,10 @@ namespace FlashcardApp.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    AvatarUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AvatarPublicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AvatarUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AvatarPublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -170,8 +170,8 @@ namespace FlashcardApp.Api.Data.Migrations
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Visibility = table.Column<int>(type: "int", nullable: false),
                     Ratings = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -194,10 +194,16 @@ namespace FlashcardApp.Api.Data.Migrations
                     NewCardsPerDay = table.Column<int>(type: "int", nullable: false),
                     MaxReviewsPerDay = table.Column<int>(type: "int", nullable: false),
                     StartingEasinessFactor = table.Column<double>(type: "float", nullable: false),
-                    GraduatingInterval = table.Column<int>(type: "int", nullable: false),
                     LearningSteps = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GraduatingInterval = table.Column<double>(type: "float", nullable: false),
+                    EasyInterval = table.Column<double>(type: "float", nullable: false),
+                    RelearningSteps = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MinimumInterval = table.Column<double>(type: "float", nullable: false),
+                    MaximumInterval = table.Column<double>(type: "float", nullable: false),
+                    HardInterval = table.Column<double>(type: "float", nullable: false),
+                    NewInterval = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -224,10 +230,11 @@ namespace FlashcardApp.Api.Data.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     EasinessFactor = table.Column<double>(type: "float", nullable: false),
                     LearningStep = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImagePublicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastReviewed = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImagePublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeckId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -248,7 +255,7 @@ namespace FlashcardApp.Api.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Rating = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     CardId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

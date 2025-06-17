@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 
 using RepetiGo.Api.Dtos.CardDtos;
-using RepetiGo.Api.Models;
 
 namespace RepetiGo.Api.MappingProfiles
 {

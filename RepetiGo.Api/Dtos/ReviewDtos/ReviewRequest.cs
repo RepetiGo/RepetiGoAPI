@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-
-namespace RepetiGo.Api.Dtos.ReviewDtos
+﻿namespace RepetiGo.Api.Dtos.ReviewDtos
 {
     public class ReviewRequest
     {

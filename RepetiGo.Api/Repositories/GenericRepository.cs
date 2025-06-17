@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
 
-using RepetiGo.Api.Data;
-using RepetiGo.Api.Helpers;
 using RepetiGo.Api.Interfaces.Repositories;
 
 namespace RepetiGo.Api.Repositories

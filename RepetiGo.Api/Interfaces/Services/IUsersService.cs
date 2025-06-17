@@ -1,6 +1,5 @@
 ﻿using RepetiGo.Api.Dtos.ProfileDtos;
 using RepetiGo.Api.Dtos.UserDtos;
-using RepetiGo.Api.Helpers;
 
 namespace RepetiGo.Api.Interfaces.Services
 {

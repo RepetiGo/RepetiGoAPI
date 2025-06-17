@@ -12,12 +12,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-using RepetiGo.Api.ConfigModels;
 using RepetiGo.Api.Dtos.ProfileDtos;
 using RepetiGo.Api.Dtos.UserDtos;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
-using RepetiGo.Api.Models;
 
 namespace RepetiGo.Api.Services
 {

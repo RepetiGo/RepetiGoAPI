@@ -5,10 +5,7 @@ using Microsoft.Extensions.Options;
 
 using Mscc.GenerativeAI;
 
-using RepetiGo.Api.ConfigModels;
 using RepetiGo.Api.Dtos.GeneratedCardDtos;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Services
 {
