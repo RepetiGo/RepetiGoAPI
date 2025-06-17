@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
 using RepetiGo.Api.Dtos.DeckDtos;
-using RepetiGo.Api.Extensions;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Controllers
 {
@@ -96,6 +93,8 @@ namespace RepetiGo.Api.Controllers
 
         // <summary>
         // PATCH /api/decks/{deckId}/sharing
+        // GET /api/shared/decks
+        // POST /api/shared/decks/{deckId}/import
         // </summary>
     }
 }

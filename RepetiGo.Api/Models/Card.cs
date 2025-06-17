@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-
-namespace RepetiGo.Api.Models
+﻿namespace RepetiGo.Api.Models
 {
     public class Card
     {
@@ -24,13 +22,15 @@ namespace RepetiGo.Api.Models
 
         public int LearningStep { get; set; } = 0;
 
+        public DateTime? LastReviewed { get; set; }
+
         public string? ImageUrl { get; set; }
 
         public string? ImagePublicId { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; }
 
         // -------------- Navigation properties --------------
 

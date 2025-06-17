@@ -9,10 +9,10 @@
         public string? AvatarPublicId { get; set; }
 
         [PersonalData]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         [PersonalData]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; }
 
         // -------------- Navigation properties --------------
 

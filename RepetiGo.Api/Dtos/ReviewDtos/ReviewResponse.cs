@@ -1,7 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-using RepetiGo.Api.Models;
-
-namespace RepetiGo.Api.Dtos.ReviewDtos
+﻿namespace RepetiGo.Api.Dtos.ReviewDtos
 {
     public class ReviewResponse
     {
@@ -10,7 +7,6 @@ namespace RepetiGo.Api.Dtos.ReviewDtos
         // -------------- Navigation properties --------------
 
         public int CardId { get; set; }
-
         public Card Card { get; set; } = null!;
     }
 }

@@ -1,5 +1,4 @@
-﻿using RepetiGo.Api.Models;
-
+﻿
 namespace RepetiGo.Api.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -24,6 +23,7 @@ namespace RepetiGo.Api.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            ConfigureTimeStamps(builder);
 
             // ApplicationUser to Deck (One-to-Many)
             builder.Entity<ApplicationUser>()
@@ -54,47 +54,40 @@ namespace RepetiGo.Api.Data
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        private void ConfigureTimeStamps(ModelBuilder builder)
         {
-            OnBeforeSaving();
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
-
-        private void OnBeforeSaving()
-        {
-            var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is Deck || e.Entity is Card || e.Entity is Review || e.Entity is Settings || e.Entity is ApplicationUser);
-
-            foreach (var entry in entries)
+            var entities = new Type[]
             {
-                var now = DateTime.UtcNow;
-                switch (entry.State)
+                typeof(Deck),
+                typeof(Card),
+                typeof(Review),
+                typeof(Settings),
+                typeof(ApplicationUser)
+            };
+
+            foreach (var entityType in entities)
+            {
+                var entity = builder.Entity(entityType);
+
+                if (entity.Metadata.FindProperty("CreatedAt") is not null)
                 {
-                    case EntityState.Added:
-                        if (entry.Metadata.FindProperty("CreatedAt") != null)
-                        {
-                            entry.Property("CreatedAt").CurrentValue = now;
-                        }
+                    entity.Property<DateTime>("CreatedAt")
+                        .HasDefaultValueSql("GETUTCDATE()")
+                        .ValueGeneratedOnAdd();
+                }
 
-                        if (entry.Metadata.FindProperty("UpdatedAt") != null)
-                        {
-                            entry.Property("UpdatedAt").CurrentValue = now;
-                        }
-                        break;
-
-                    case EntityState.Modified:
-                        if (entry.Metadata.FindProperty("UpdatedAt") != null)
-                        {
-                            entry.Property("UpdatedAt").CurrentValue = now;
-                        }
-
-                        if (entry.Metadata.FindProperty("CreatedAt") != null)
-                        {
-                            entry.Property("CreatedAt").IsModified = false;
-                        }
-                        break;
+                if (entity.Metadata.FindProperty("UpdatedAt") is not null)
+                {
+                    entity.Property<DateTime>("UpdatedAt")
+                        .HasDefaultValueSql("GETUTCDATE()")
+                        .ValueGeneratedOnAddOrUpdate();
                 }
             }
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Helpers;
-
-namespace RepetiGo.Api.Extensions
+﻿namespace RepetiGo.Api.Extensions
 {
     public static class ServiceResultExtensions
     {

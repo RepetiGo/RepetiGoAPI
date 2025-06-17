@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-
-namespace RepetiGo.Api.Models
+﻿namespace RepetiGo.Api.Models
 {
     public class Deck
     {
@@ -10,15 +8,15 @@ namespace RepetiGo.Api.Models
         public string Name { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string? Description { get; set; } = null;
+        public string? Description { get; set; }
 
         public CardVisibility Visibility { get; set; } = CardVisibility.Public;
 
         public int Ratings { get; set; } = 0;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; }
 
         // -------------- Navigation properties --------------
 

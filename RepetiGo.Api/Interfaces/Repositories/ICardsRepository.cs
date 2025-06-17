@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Models;
-
-namespace RepetiGo.Api.Interfaces.Repositories
+﻿namespace RepetiGo.Api.Interfaces.Repositories
 {
     public interface ICardsRepository : IGenericRepository<Card>
     {

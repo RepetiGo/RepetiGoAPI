@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
 using RepetiGo.Api.Dtos.UserDtos;
-using RepetiGo.Api.Extensions;
-using RepetiGo.Api.Helpers;
-using RepetiGo.Api.Interfaces.Services;
 
 namespace RepetiGo.Api.Controllers
 {

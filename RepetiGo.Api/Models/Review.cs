@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Enums;
-
-namespace RepetiGo.Api.Models
+﻿namespace RepetiGo.Api.Models
 {
     public class Review
     {
@@ -8,7 +6,7 @@ namespace RepetiGo.Api.Models
 
         public ReviewRating Rating { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         // -------------- Navigation properties --------------
 
