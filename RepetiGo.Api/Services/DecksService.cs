@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 
 using RepetiGo.Api.Dtos.DeckDtos;
-using RepetiGo.Api.Interfaces;
 
 namespace RepetiGo.Api.Services
 {
@@ -22,7 +21,7 @@ namespace RepetiGo.Api.Services
             _logger = logger;
         }
 
-        public async Task<ServiceResult<ICollection<DeckResponse>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ICollection<DeckResponse>>> GetDecksByUserIdAsync(Query? query, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -43,13 +42,12 @@ namespace RepetiGo.Api.Services
             }
 
             var decks = await _unitOfWork.DecksRepository.GetAllAsync(
-                filter: d => d.UserId == userId,
-                orderBy: q => q.OrderBy(d => d.CreatedAt),
-                paginationQuery: paginationQuery);
+                filter: d => d.UserId == userId, // Base filter
+                query: query);
 
-            var decksReponse = _mapper.Map<ICollection<DeckResponse>>(decks);
+            var decksResponse = _mapper.Map<ICollection<DeckResponse>>(decks);
 
-            return ServiceResult<ICollection<DeckResponse>>.Success(decksReponse);
+            return ServiceResult<ICollection<DeckResponse>>.Success(decksResponse);
         }
 
         public async Task<ServiceResult<DeckResponse>> GetDeckByIdAsync(int deckId, ClaimsPrincipal claimsPrincipal)
@@ -196,12 +194,13 @@ namespace RepetiGo.Api.Services
             }
 
             // Check if the deck has any associated flashcards
-            var cards = await _unitOfWork.CardsRepository.GetAllAsync(c => c.DeckId == deckId);
-            if (cards != null && cards.Any())
+            var cards = await _unitOfWork.CardsRepository.GetAllAsync(
+                filter: c => c.DeckId == deckId);
+            if (cards is not null && cards.Count != 0)
             {
                 foreach (var card in cards)
                 {
-                    if (card.ImagePublicId != null)
+                    if (card.ImagePublicId is not null)
                     {
                         var imageDeletionResult = await _uploadsService.DeleteImageAsync(card.ImagePublicId);
                         if (!imageDeletionResult.IsSuccess)

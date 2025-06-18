@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 
 using Mscc.GenerativeAI;
 
+using Polly.Registry;
+
 using RepetiGo.Api.Dtos.GeneratedCardDtos;
 
 namespace RepetiGo.Api.Services
@@ -12,14 +14,14 @@ namespace RepetiGo.Api.Services
     public class AiGeneratorService : IAiGeneratorService
     {
         private readonly GoogleGeminiConfig _googleGeminiConfig;
-        private readonly ResponseTemplate _responseTemplate;
         private readonly IUploadsService _uploadsService;
+        private readonly ResiliencePipelineProvider<string> _resiliencePipelineProvider;
 
-        public AiGeneratorService(IOptions<GoogleGeminiConfig> options, ResponseTemplate responseTemplate, IUploadsService uploadsService)
+        public AiGeneratorService(IOptions<GoogleGeminiConfig> options, IUploadsService uploadsService, ResiliencePipelineProvider<string> resiliencePipelineProvider)
         {
             _googleGeminiConfig = options.Value;
-            _responseTemplate = responseTemplate;
             _uploadsService = uploadsService;
+            _resiliencePipelineProvider = resiliencePipelineProvider;
         }
 
         public async Task<GeneratedContentResult> GenerateCardContentAsync(GenerateRequest generateRequest)
@@ -36,7 +38,7 @@ namespace RepetiGo.Api.Services
             var model = new GoogleAI(apiKey: _googleGeminiConfig.ApiKey).GenerativeModel(model: Model.Gemini25Flash);
 
             var responseJson = await model.GenerateContent(
-                _responseTemplate.GetPromptTemplate(generateRequest.Topic, generateRequest.FrontText, generateRequest.BackText)
+                ResponseTemplate.GetPromptTemplate(generateRequest.Topic, generateRequest.FrontText ?? string.Empty, generateRequest.BackText ?? string.Empty)
             );
 
             try
@@ -82,12 +84,17 @@ namespace RepetiGo.Api.Services
             var model = new VertexAI(projectId: _googleGeminiConfig.ProjectId, region: _googleGeminiConfig.Region).ImageGenerationModel(model: Model.Imagen4UltraExperimental);
             //model.AccessToken = _googleGeminiConfig.AccessToken;
 
-            var imageResponse = await model.GenerateImages(
-                _responseTemplate.GetVisualIdeaPrompt(generateRequest.FrontText, generateRequest.BackText),
-                language: generateRequest.ImagePromptLanguage,
-                numberOfImages: 1,
-                enhancePrompt: generateRequest.EnhancePrompt,
-                aspectRatio: generateRequest.AspectRatio
+            var pipeline = _resiliencePipelineProvider.GetPipeline("default");
+
+            ImageGenerationResponse imageResponse = await pipeline.ExecuteAsync(async cancellationToken =>
+                imageResponse = await model.GenerateImages(
+                    ResponseTemplate.GetVisualIdeaPrompt(generateRequest.FrontText ?? string.Empty, generateRequest.BackText ?? string.Empty),
+                    language: generateRequest.ImagePromptLanguage,
+                    numberOfImages: 1,
+                    enhancePrompt: generateRequest.EnhancePrompt,
+                    aspectRatio: generateRequest.AspectRatio,
+                    cancellationToken: cancellationToken
+                )
             );
 
             if (imageResponse is null || imageResponse.Predictions is null || imageResponse.Predictions.Count == 0)

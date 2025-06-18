@@ -2,7 +2,7 @@
 
 namespace RepetiGo.Api.Helpers
 {
-    public class ResetCode
+    public static class ResetCode
     {
         private static readonly ConcurrentDictionary<string, string> _codes = new ConcurrentDictionary<string, string>();
 
@@ -14,7 +14,7 @@ namespace RepetiGo.Api.Helpers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public string GenerateCode(string email)
+        public static string GenerateCode(string email)
         {
             string code = RandomString(8);
             bool isNew = _codes.TryAdd(email, code);
@@ -27,7 +27,7 @@ namespace RepetiGo.Api.Helpers
             return code;
         }
 
-        public bool ValidateResetCode(string email, string code)
+        public static bool ValidateResetCode(string email, string code)
         {
             if (email == null || code == null)
             {
@@ -48,7 +48,7 @@ namespace RepetiGo.Api.Helpers
             return false;
         }
 
-        public async Task Countdown(string email, string code)
+        public static async Task Countdown(string email, string code)
         {
             await Task.Delay(new TimeSpan(0, 15, 0)).ContinueWith(t =>
             {

@@ -19,7 +19,7 @@ namespace RepetiGo.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/cards")]
-        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] Query? query)
         {
             if (!ModelState.IsValid)
             {
@@ -29,7 +29,7 @@ namespace RepetiGo.Api.Controllers
                 ));
             }
 
-            var result = await _cardsService.GetCardsByDeckIdAsync(deckId, paginationQuery, User);
+            var result = await _cardsService.GetCardsByDeckIdAsync(deckId, query, User);
             return result.ToActionResult();
         }
 
@@ -112,7 +112,7 @@ namespace RepetiGo.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/due")]
-        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] Query? query)
         {
             if (!ModelState.IsValid)
             {
@@ -122,7 +122,7 @@ namespace RepetiGo.Api.Controllers
                 ));
             }
 
-            var result = await _cardsService.GetDueCardsByDeckIdAsync(deckId, paginationQuery, User);
+            var result = await _cardsService.GetDueCardsByDeckIdAsync(deckId, query, User);
             return result.ToActionResult();
         }
 
