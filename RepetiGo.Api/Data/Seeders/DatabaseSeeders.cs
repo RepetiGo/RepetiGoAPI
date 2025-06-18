@@ -99,8 +99,7 @@ namespace RepetiGo.Api.Data.Seeders
             var faker = new Faker<Review>()
                 .RuleFor(r => r.CardId, f => f.PickRandom(cards).Id)
                 .RuleFor(r => r.Rating, f => f.PickRandom<ReviewRating>())
-                .RuleFor(r => r.CreatedAt, f => f.Date.Past(1))
-                .RuleFor(r => r.CardId, f => f.PickRandom(cards).Id);
+                .RuleFor(r => r.CreatedAt, f => f.Date.Past(1));
 
             return faker.Generate(count);
         }
