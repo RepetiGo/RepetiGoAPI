@@ -43,7 +43,7 @@ namespace RepetiGo.Api.Data.Seeders
                 .RuleFor(d => d.Visibility, f => f.PickRandom<CardVisibility>())
                 .RuleFor(d => d.CreatedAt, f => f.Date.Past(1))
                 .RuleFor(d => d.UpdatedAt, f => f.Date.Recent())
-                .RuleFor(d => d.UserId, f => f.PickRandom(user).Id);
+                .RuleFor(d => d.UserId, f => user.Id);
 
             return faker.Generate(count);
         }
