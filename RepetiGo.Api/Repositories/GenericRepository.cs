@@ -1,7 +1,5 @@
 using System.Linq.Expressions;
 
-using RepetiGo.Api.Interfaces.Repositories;
-
 namespace RepetiGo.Api.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
@@ -18,39 +16,52 @@ namespace RepetiGo.Api.Repositories
 
         public virtual async Task<ICollection<T>> GetAllAsync(
             Expression<Func<T, bool>>? filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            string includeProperties = "",
-            PaginationQuery? paginationQuery = null)
+            Query? query = null)
         {
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> queryable = _dbSet;
 
-            // Apply filter if provided
+            // Apply base filter if provided in the query
             if (filter is not null)
             {
-                query = query.Where(filter);
+                queryable = queryable.Where(filter);
+            }
+
+            // Apply dynamic filter if provided in the query
+            if (query?.Filter is not null)
+            {
+                var dynamicFilter = DynamicQueryBuilder.BuildFilter<T>(query.Filter);
+                if (dynamicFilter is not null)
+                {
+                    queryable = queryable.Where(dynamicFilter);
+                }
             }
 
             // Apply includes if provided
-            if (!string.IsNullOrEmpty(includeProperties))
+            if (query is not null && !string.IsNullOrEmpty(query.Include))
             {
-                foreach (var includeProperty in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                foreach (var includeProperty in query.Include.Split(',', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    query = query.Include(includeProperty);
+                    queryable = queryable.Include(includeProperty);
                 }
             }
 
             // Apply ordering if provided
-            if (orderBy is not null)
+            if (query?.Sort is not null)
             {
-                query = orderBy(query);
+                var sortBy = DynamicQueryBuilder.BuildSortBy<T>(query.Sort, query.Descending);
+                if (sortBy is not null)
+                {
+                    queryable = sortBy(queryable);
+                }
             }
 
             // Apply pagination
-            paginationQuery ??= new PaginationQuery();
-            query = query.Skip((paginationQuery.PageNumber - 1) * paginationQuery.PageSize)
-                         .Take(paginationQuery.PageSize);
+            if (query is not null)
+            {
+                queryable = queryable.Skip(query.Skip + (query.Page - 1) * query.Size).Take(query.Size);
+            }
 
-            return await query.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
         public virtual async Task<T?> GetByIdAsync(int id)

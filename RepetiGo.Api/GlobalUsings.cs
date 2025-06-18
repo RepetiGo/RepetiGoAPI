@@ -9,6 +9,7 @@ global using Microsoft.EntityFrameworkCore;
 
 global using RepetiGo.Api.ConfigModels;
 global using RepetiGo.Api.Data;
+global using RepetiGo.Api.Data.Seeders;
 global using RepetiGo.Api.Enums;
 global using RepetiGo.Api.Extensions;
 global using RepetiGo.Api.Helpers;

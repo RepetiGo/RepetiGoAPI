@@ -26,11 +26,8 @@ namespace RepetiGo.Api.Services
         private readonly IMapper _mapper;
         private readonly IEmailSenderService _emailSenderService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ResponseTemplate _responseTemplate;
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly ISettingsService _settingsService;
-        //Hash table contains currently active password reset codes
-        private readonly ResetCode _resetCode;
         private readonly IUploadsService _uploadsService;
 
         public UsersService(IOptions<JwtConfig> options,
@@ -39,10 +36,8 @@ namespace RepetiGo.Api.Services
             IMapper mapper,
             IEmailSenderService emailSenderService,
             IHttpContextAccessor httpContextAccessor,
-            ResponseTemplate responseTemplate,
             IUrlHelperFactory urlHelperFactory,
             ISettingsService settingsService,
-            ResetCode resetCode,
             IUploadsService uploadsService)
         {
             _jwtConfig = options.Value;
@@ -52,10 +47,8 @@ namespace RepetiGo.Api.Services
             _mapper = mapper;
             _emailSenderService = emailSenderService;
             _httpContextAccessor = httpContextAccessor;
-            _responseTemplate = responseTemplate;
             _urlHelperFactory = urlHelperFactory;
             _settingsService = settingsService;
-            _resetCode = resetCode;
             _uploadsService = uploadsService;
         }
 
@@ -117,7 +110,7 @@ namespace RepetiGo.Api.Services
             if (userId == null || token == null)
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
+                    ResponseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
                     HttpStatusCode.BadRequest
                 );
             }
@@ -126,7 +119,7 @@ namespace RepetiGo.Api.Services
             if (user is null)
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
+                    ResponseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
                     HttpStatusCode.BadRequest
                 );
             }
@@ -135,13 +128,13 @@ namespace RepetiGo.Api.Services
             if (!result.Succeeded)
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
+                    ResponseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
                     HttpStatusCode.BadRequest
                 );
             }
 
             return ServiceResult<object>.Success(
-                _responseTemplate.NotificationSuccessHtml(),
+                ResponseTemplate.NotificationSuccessHtml(),
                 HttpStatusCode.OK
             );
         }
@@ -152,7 +145,7 @@ namespace RepetiGo.Api.Services
             if (user is null)
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.NotifyNotFoundHtml("/api/users/resend"),
+                    ResponseTemplate.NotifyNotFoundHtml("/api/users/resend"),
                     HttpStatusCode.NotFound
                 );
             }
@@ -160,7 +153,7 @@ namespace RepetiGo.Api.Services
             if (await _userManager.IsEmailConfirmedAsync(user))
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.NotifyNotFoundHtml("/api/users/resend"),
+                    ResponseTemplate.NotifyNotFoundHtml("/api/users/resend"),
                     HttpStatusCode.BadRequest
                 );
             }
@@ -169,13 +162,13 @@ namespace RepetiGo.Api.Services
             if (!isSent)
             {
                 return ServiceResult<object>.Success(
-                    _responseTemplate.NotifyNotFoundHtml("/api/users/resend"),
+                    ResponseTemplate.NotifyNotFoundHtml("/api/users/resend"),
                     HttpStatusCode.InternalServerError
                 );
             }
 
             return ServiceResult<object>.Success(
-                _responseTemplate.NotifyResendVerificationEmailHtml(),
+                ResponseTemplate.NotifyResendVerificationEmailHtml(),
                 HttpStatusCode.OK
             );
         }
@@ -426,7 +419,7 @@ namespace RepetiGo.Api.Services
 
             var subject = "Confirm your email address";
 
-            await _emailSenderService.SendEmailAsync(email, subject, _responseTemplate.GetEmailVerificationHtml(safeLink), true);
+            await _emailSenderService.SendEmailAsync(email, subject, ResponseTemplate.GetEmailVerificationHtml(safeLink), true);
             return true;
         }
 
@@ -454,8 +447,8 @@ namespace RepetiGo.Api.Services
                 );
             }
             var subject = "Password reset code";
-            string code = _resetCode.GenerateCode(forgotPasswordRequest.Email);
-            await _emailSenderService.SendEmailAsync(forgotPasswordRequest.Email, subject, _responseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
+            string code = ResetCode.GenerateCode(forgotPasswordRequest.Email);
+            await _emailSenderService.SendEmailAsync(forgotPasswordRequest.Email, subject, ResponseTemplate.GetEmailPasswordResetVerificationHtml(code), true);
 
             return ServiceResult<object>.Success(
                 new { Message = "Password reset code sent. Please check your email, including spam folder." },
@@ -474,7 +467,7 @@ namespace RepetiGo.Api.Services
                 );
             }
             string code = resetPasswordRequest.Code;
-            if (string.IsNullOrEmpty(code) || !_resetCode.ValidateResetCode(resetPasswordRequest.Email, code))
+            if (string.IsNullOrEmpty(code) || !ResetCode.ValidateResetCode(resetPasswordRequest.Email, code))
             {
                 return ServiceResult<object>.Failure(
                     "Reset code is wrong or has expired.",
@@ -568,7 +561,7 @@ namespace RepetiGo.Api.Services
 
             // Update user with new avatar URL and public ID
             var updateResult = await _userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
+            if (!updateResult.Succeeded && uploadResult.PublicId is not null)
             {
                 // Delete the newly uploaded image since we're rolling back
                 await _uploadsService.DeleteImageAsync(uploadResult.PublicId);

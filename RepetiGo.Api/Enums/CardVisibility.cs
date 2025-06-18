@@ -2,7 +2,7 @@
 {
     public enum CardVisibility
     {
-        Private,
-        Public,
+        Private = 0,
+        Public = 1
     }
 }

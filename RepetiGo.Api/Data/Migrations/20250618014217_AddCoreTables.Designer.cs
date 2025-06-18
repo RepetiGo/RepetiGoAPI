@@ -12,7 +12,7 @@ using RepetiGo.Api.Data;
 namespace RepetiGo.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250617145103_AddCoreTables")]
+    [Migration("20250618014217_AddCoreTables")]
     partial class AddCoreTables
     {
         /// <inheritdoc />

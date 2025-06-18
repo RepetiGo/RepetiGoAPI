@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
+using Polly;
+using Polly.Retry;
+
 namespace RepetiGo.Api.Extensions
 {
     public static class ServiceCollectionExtensions
@@ -141,7 +144,7 @@ namespace RepetiGo.Api.Extensions
             return services;
         }
 
-        public static (string AiGeneration, string Global) AddRateLimitingService(this IServiceCollection services)
+        public static IServiceCollection AddRateLimitingService(this IServiceCollection services)
         {
             // Configure rate limiting
             services.AddRateLimiter(options =>
@@ -173,8 +176,7 @@ namespace RepetiGo.Api.Extensions
                 };
             });
 
-            (string AiGeneration, string Global) rateLimitPolicies = (AiGeneration: "ai-generation", Global: "global");
-            return rateLimitPolicies;
+            return services;
         }
 
         public static IServiceCollection AddExceptionHandlerService(this IServiceCollection services)
@@ -225,7 +227,46 @@ namespace RepetiGo.Api.Extensions
             return services;
         }
 
-        public static IServiceCollection ConfigureFormOptions(this IServiceCollection services)
+        public static IServiceCollection AddDataProtectionTokenProviderOptionsService(this IServiceCollection services)
+        {
+            // Configure Data Protection Token Provider options
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromHours(2); // Set token lifespan to 2 hours
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddOpenApiService(this IServiceCollection services)
+        {
+            // Register the OpenAPI document transformer for Bearer security scheme
+            services.AddOpenApi(options =>
+            {
+                options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddResiliencePipelineService(this IServiceCollection services)
+        {
+            services.AddResiliencePipeline("default", builder =>
+            {
+                // Rate limiting configuration
+                builder.AddRetry(new RetryStrategyOptions
+                {
+                    ShouldHandle = new PredicateBuilder().Handle<Exception>(),
+                    Delay = TimeSpan.FromSeconds(2),
+                    MaxRetryAttempts = 3,
+                    BackoffType = DelayBackoffType.Exponential,
+                    UseJitter = true
+                });
+                builder.AddTimeout(TimeSpan.FromSeconds(30));
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddFormOptionsService(this IServiceCollection services)
         {
             // Configure form options to allow larger file uploads
             services.Configure<FormOptions>(options =>

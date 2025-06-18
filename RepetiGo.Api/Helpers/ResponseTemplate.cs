@@ -1,8 +1,8 @@
 ﻿namespace RepetiGo.Api.Helpers
 {
-    public class ResponseTemplate
+    public static class ResponseTemplate
     {
-        public string GetEmailVerificationHtml(string safeLink)
+        public static string GetEmailVerificationHtml(string safeLink)
         {
             return $@"<!DOCTYPE html>
 <html>
@@ -268,7 +268,7 @@
 </html>";
         }
 
-        public string NotificationSuccessHtml()
+        public static string NotificationSuccessHtml()
         {
             return @"<!DOCTYPE html>
 <html>
@@ -402,7 +402,7 @@
 ";
         }
 
-        public string ResendVerificationEmailHtml(string safeLink)
+        public static string ResendVerificationEmailHtml(string safeLink)
         {
             return $@"<!DOCTYPE html>
 <html>
@@ -555,7 +555,7 @@
 ";
         }
 
-        public string NotifyResendVerificationEmailHtml()
+        public static string NotifyResendVerificationEmailHtml()
         {
             return @"<!DOCTYPE html>
 <html>
@@ -692,7 +692,7 @@
 ";
         }
 
-        public string NotifyNotFoundHtml(string safeLink)
+        public static string NotifyNotFoundHtml(string safeLink)
         {
             return $@"<!DOCTYPE html>
 <html>
@@ -862,7 +862,7 @@
 ";
         }
 
-        public string GetEmailPasswordResetVerificationHtml(string code)
+        public static string GetEmailPasswordResetVerificationHtml(string code)
         {
             return $@"<!DOCTYPE html>
 <html>
@@ -1107,7 +1107,7 @@
 </html>";
         }
 
-        public string GetPromptTemplate(string topic, string frontText, string backText)
+        public static string GetPromptTemplate(string topic, string frontText, string backText)
         {
             // If the user provided a starting point, note it. Otherwise, create from scratch.
             string inputContext = string.IsNullOrWhiteSpace(frontText) && string.IsNullOrWhiteSpace(backText)
@@ -1135,7 +1135,7 @@ Respond ONLY with a single, raw JSON object in the following format. Do not incl
 }}";
         }
 
-        public string GetVisualIdeaPrompt(string frontText, string backText)
+        public static string GetVisualIdeaPrompt(string frontText, string backText)
         {
             return $@"
 You are a creative assistant. Based on the following flashcard content, describe a simple, clean, and iconic image that would help a student remember this concept.

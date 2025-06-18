@@ -4,7 +4,7 @@ namespace RepetiGo.Api.Interfaces.Services
 {
     public interface IDecksService
     {
-        Task<ServiceResult<ICollection<DeckResponse>>> GetDecksByUserIdAsync(PaginationQuery? paginationQuery, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<ICollection<DeckResponse>>> GetDecksByUserIdAsync(Query? query, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<DeckResponse>> GetDeckByIdAsync(int deckId, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<DeckResponse>> CreateDeckAsync(CreateDeckRequest createDeck, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<DeckResponse>> UpdateDeckAsync(int deckId, UpdateDeckRequest updateDeckRequest, ClaimsPrincipal claimsPrincipal);

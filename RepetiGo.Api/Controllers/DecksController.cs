@@ -17,7 +17,7 @@ namespace RepetiGo.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetDecks([FromQuery] PaginationQuery? paginationQuery)
+        public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetDecks([FromQuery] Query? query)
         {
             if (!ModelState.IsValid)
             {
@@ -27,7 +27,7 @@ namespace RepetiGo.Api.Controllers
                 ));
             }
 
-            var result = await _decksService.GetDecksByUserIdAsync(paginationQuery, User);
+            var result = await _decksService.GetDecksByUserIdAsync(query, User);
             return result.ToActionResult();
         }
 

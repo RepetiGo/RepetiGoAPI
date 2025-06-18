@@ -3,14 +3,15 @@ namespace RepetiGo.Api
     public class Program
     {
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             var corsPolicyName = "AllowedHosts";
 
-            // Configure services
             builder.Services.AddControllers();
-            var (AiGeneration, Global) = builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>())
+
+            // Configure services
+            builder.Services.AddOpenApiService()
                 .AddConfigurationService(builder.Configuration)
                 .AddCorsService(corsPolicyName)
                 .AddDatabaseService()
@@ -19,12 +20,12 @@ namespace RepetiGo.Api
                 .AddCacheService()
                 .AddAutoMapperService()
                 .AddJsonService()
-                .AddExceptionHandler<GlobalExceptionHandler>()
-                .Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromHours(2))
-                .ConfigureFormOptions()
+                .AddDataProtectionTokenProviderOptionsService()
+                .AddFormOptionsService()
                 .AddExceptionHandlerService()
                 .AddHttpContextAccessor()
                 .AddHttpLogging(o => { })
+                .AddResiliencePipelineService()
                 .AddRateLimitingService();
 
             // Register services
@@ -35,9 +36,9 @@ namespace RepetiGo.Api
                 .AddScoped<IEmailSenderService, EmailSenderService>()
                 .AddScoped<IUploadsService, UploadsService>()
                 .AddScoped<IAiGeneratorService, AiGeneratorService>()
+                .AddScoped<IReviewsService, ReviewsService>()
                 .AddScoped<IUnitOfWork, UnitOfWork>()
-                .AddScoped<ResponseTemplate>()
-                .AddScoped<ResetCode>();
+                .AddScoped<DatabaseSeeders>();
 
             var app = builder.Build();
 
@@ -50,6 +51,9 @@ namespace RepetiGo.Api
                 {
                     options.SwaggerEndpoint("/openapi/v1.json", "RepetiGo API");
                 });
+                using var scope = app.Services.CreateScope();
+                var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeders>();
+                await seeder.SeedDatabaseAsync();
             }
             else
             {
@@ -63,7 +67,7 @@ namespace RepetiGo.Api
             app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers().RequireRateLimiting(Global);
+            app.MapControllers().RequireRateLimiting("global");
 
             app.Run();
         }
