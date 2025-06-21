@@ -6,14 +6,13 @@ namespace RepetiGo.Api
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var corsPolicyName = "AllowedHosts";
 
             builder.Services.AddControllers();
 
             // Configure services
             builder.Services.AddOpenApiService()
                 .AddConfigurationService(builder.Configuration)
-                .AddCorsService(corsPolicyName)
+                .AddCorsService("AllowedHosts")
                 .AddDatabaseService()
                 .AddIdentityService()
                 .AddAuthenticationService()
@@ -63,7 +62,7 @@ namespace RepetiGo.Api
 
             app.UseExceptionHandler("/error");
             app.UseHttpsRedirection();
-            app.UseCors(corsPolicyName);
+            app.UseCors("AllowedHosts");
             app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();

@@ -4,6 +4,8 @@
 ## Get latest from `dotnet new gitignore`
 
 # dotenv files
+gen-lang-client-0042585374-cee6dd59fb76.json
+launchSettings.json
 .env
 appsettings.json
 
@@ -483,3 +485,4 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+/RepetiGo.Api/Properties/launchSettings.json
