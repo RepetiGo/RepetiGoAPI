@@ -138,7 +138,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [Authorize]
         [HttpPost("logout")]
         public async Task<ActionResult<ServiceResult<object>>> LogOut([FromBody] LogOutRequest logOutRequest)
         {
