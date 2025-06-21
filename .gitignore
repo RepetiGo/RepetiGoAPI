@@ -4,7 +4,8 @@
 ## Get latest from `dotnet new gitignore`
 
 # dotenv files
-**/**/launchSettings.json
+gen-lang-client-0042585374-cee6dd59fb76.json
+launchSettings.json
 .env
 appsettings.json
 

@@ -65,7 +65,7 @@ namespace RepetiGo.Api.Services
 
             var user = new ApplicationUser
             {
-                UserName = registerRequest.Email,
+                UserName = registerRequest.Username,
                 Email = registerRequest.Email,
             };
 
@@ -184,11 +184,38 @@ namespace RepetiGo.Api.Services
                 );
             }
 
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+                var remainingLockoutTime = lockoutEnd?.Subtract(DateTime.UtcNow);
+
+                return ServiceResult<UserResponse>.Failure(
+                    $"Account is locked. Please try again in {remainingLockoutTime?.TotalMinutes} minutes.",
+                    HttpStatusCode.Locked
+                );
+            }
+
             var isCorrect = await _userManager.CheckPasswordAsync(user, logInRequest.Password);
             if (!isCorrect)
             {
+                await _userManager.AccessFailedAsync(user);
+
+                if (await _userManager.IsLockedOutAsync(user))
+                {
+                    var lockoutEnd = await _userManager.GetLockoutEndDateAsync(user);
+                    var remainingLockoutTime = lockoutEnd?.Subtract(DateTime.UtcNow);
+                    return ServiceResult<UserResponse>.Failure(
+                        $"Too many failed attempts. Please try again in {remainingLockoutTime?.TotalMinutes} minutes.",
+                        HttpStatusCode.Locked
+                    );
+                }
+
+                var failedAttempts = await _userManager.GetAccessFailedCountAsync(user);
+                var maxAttempts = _userManager.Options.Lockout.MaxFailedAccessAttempts;
+                var remainingAttempts = maxAttempts - failedAttempts;
+
                 return ServiceResult<UserResponse>.Failure(
-                    "Incorrect password",
+                    $"Incorrect password. {remainingAttempts} attempts remaining.",
                     HttpStatusCode.Unauthorized
                 );
             }
@@ -200,6 +227,8 @@ namespace RepetiGo.Api.Services
                     HttpStatusCode.Unauthorized
                 );
             }
+
+            await _userManager.ResetAccessFailedCountAsync(user);
 
             return ServiceResult<UserResponse>.Success(
                 await GenerateTokensAsync(user),
