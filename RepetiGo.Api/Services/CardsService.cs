@@ -45,7 +45,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId)
+            if (deck.UserId != userId && deck.Visibility != CardVisibility.Public)
             {
                 return ServiceResult<ICollection<CardResponse>>.Failure(
                     "You do not have permission to access this deck",
@@ -82,7 +82,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId)
+            if (deck.UserId != userId && deck.Visibility != CardVisibility.Public)
             {
                 return ServiceResult<CardResponse>.Failure(
                     "You do not have permission to access this deck",

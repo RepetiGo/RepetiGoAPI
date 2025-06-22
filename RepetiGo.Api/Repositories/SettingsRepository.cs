@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Interfaces.Repositories;
-
-namespace RepetiGo.Api.Repositories
+﻿namespace RepetiGo.Api.Repositories
 {
     public class SettingsRepository : GenericRepository<Settings>, ISettingsRepository
     {

@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Interfaces;
-
-namespace RepetiGo.Api.Services
+﻿namespace RepetiGo.Api.Services
 {
     public class SettingsService : ISettingsService
     {
