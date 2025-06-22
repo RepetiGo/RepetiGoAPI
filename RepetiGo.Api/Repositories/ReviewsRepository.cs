@@ -1,6 +1,4 @@
-﻿using RepetiGo.Api.Interfaces.Repositories;
-
-namespace RepetiGo.Api.Repositories
+﻿namespace RepetiGo.Api.Repositories
 {
     public class ReviewsRepository : GenericRepository<Review>, IReviewsRepository
     {

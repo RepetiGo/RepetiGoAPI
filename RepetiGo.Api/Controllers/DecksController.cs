@@ -93,8 +93,22 @@ namespace RepetiGo.Api.Controllers
 
         // <summary>
         // PATCH /api/decks/{deckId}/sharing
-        // GET /api/shared/decks
         // POST /api/shared/decks/{deckId}/import
         // </summary>
+        [Authorize]
+        [HttpGet("shared")]
+        public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetPublicDecks([FromQuery] Query? query)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<ICollection<DeckResponse>>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _decksService.GetPublicDecksAsync(query, User);
+            return result.ToActionResult();
+        }
     }
 }

@@ -14,8 +14,9 @@ namespace RepetiGo.Api.Services
         private readonly ILogger<CardsService> _logger;
         private readonly IAiGeneratorService _aiGeneratorService;
         private readonly IReviewsService _reviewsService;
+        private readonly IDecksService _decksService;
 
-        public CardsService(IUnitOfWork unitOfWork, IMapper mapper, IUploadsService uploadsService, ILogger<CardsService> logger, IAiGeneratorService aiGeneratorService, IReviewsService reviewsService)
+        public CardsService(IUnitOfWork unitOfWork, IMapper mapper, IUploadsService uploadsService, ILogger<CardsService> logger, IAiGeneratorService aiGeneratorService, IReviewsService reviewsService, IDecksService decksService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -23,6 +24,7 @@ namespace RepetiGo.Api.Services
             _logger = logger;
             _aiGeneratorService = aiGeneratorService;
             _reviewsService = reviewsService;
+            _decksService = decksService;
         }
 
         public async Task<ServiceResult<ICollection<CardResponse>>> GetCardsByDeckIdAsync(int deckId, Query? query, ClaimsPrincipal claimsPrincipal)
@@ -45,7 +47,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId)
+            if (!_decksService.HasAccessToDeck(deck, userId))
             {
                 return ServiceResult<ICollection<CardResponse>>.Failure(
                     "You do not have permission to access this deck",
@@ -82,7 +84,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId)
+            if (!_decksService.HasAccessToDeck(deck, userId))
             {
                 return ServiceResult<CardResponse>.Failure(
                     "You do not have permission to access this deck",

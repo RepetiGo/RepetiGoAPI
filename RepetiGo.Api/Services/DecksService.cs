@@ -50,6 +50,34 @@ namespace RepetiGo.Api.Services
             return ServiceResult<ICollection<DeckResponse>>.Success(decksResponse);
         }
 
+        public async Task<ServiceResult<ICollection<DeckResponse>>> GetPublicDecksAsync(Query? query, ClaimsPrincipal claimsPrincipal)
+        {
+            var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<ICollection<DeckResponse>>.Failure(
+                    "User not authenticated",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return ServiceResult<ICollection<DeckResponse>>.Failure(
+                    "User not found",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            var decks = await _unitOfWork.DecksRepository.GetAllAsync(
+                filter: d => d.Visibility == CardVisibility.Public,
+                query: query);
+
+            var decksResponse = _mapper.Map<ICollection<DeckResponse>>(decks);
+            return ServiceResult<ICollection<DeckResponse>>.Success(decksResponse);
+        }
+
         public async Task<ServiceResult<DeckResponse>> GetDeckByIdAsync(int deckId, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -70,7 +98,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId)
+            if (!HasAccessToDeck(deck, userId))
             {
                 return ServiceResult<DeckResponse>.Failure(
                     "You do not have permission to access this deck",
@@ -218,6 +246,11 @@ namespace RepetiGo.Api.Services
                 new { Message = "Deck deleted successfully" },
                 HttpStatusCode.NoContent
             );
+        }
+
+        public bool HasAccessToDeck(Deck deck, string userId)
+        {
+            return deck.UserId == userId || deck.Visibility == CardVisibility.Public;
         }
     }
 }
