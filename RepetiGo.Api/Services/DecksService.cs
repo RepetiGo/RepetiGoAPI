@@ -98,7 +98,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (deck.UserId != userId && deck.Visibility != CardVisibility.Public)
+            if (!HasAccessToDeck(deck, userId))
             {
                 return ServiceResult<DeckResponse>.Failure(
                     "You do not have permission to access this deck",
@@ -246,6 +246,11 @@ namespace RepetiGo.Api.Services
                 new { Message = "Deck deleted successfully" },
                 HttpStatusCode.NoContent
             );
+        }
+
+        public bool HasAccessToDeck(Deck deck, string userId)
+        {
+            return deck.UserId == userId || deck.Visibility == CardVisibility.Public;
         }
     }
 }
