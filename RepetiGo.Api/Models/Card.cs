@@ -22,6 +22,8 @@
 
         public int LearningStep { get; set; } = 0;
 
+        public double? FailedInterval { get; set; }
+
         public DateTime? LastReviewed { get; set; }
 
         public string? ImageUrl { get; set; }
@@ -39,5 +41,10 @@
         public Deck Deck { get; set; } = null!;
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
     }
 }

@@ -57,7 +57,12 @@
         public double MaximumInterval { get; set; } = 180;
 
         /// <summary>
-        /// The multiplier applied to a interval when answering Hard.
+        /// An extra multiplier that is applied to a review card's interval when you rate it Easy.
+        /// </summary>
+        public double EasyBonus { get; set; } = 1.5;
+
+        /// <summary>
+        /// The multiplier applied to a review interval when answering Hard.
         /// </summary>
         public double HardInterval { get; set; } = 1.2;
 

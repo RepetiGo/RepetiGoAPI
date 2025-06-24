@@ -16,9 +16,6 @@
         public double NewInterval { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
-        // -------------- Navigation properties --------------
-
         public string UserId { get; set; } = string.Empty;
     }
 }

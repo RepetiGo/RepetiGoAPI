@@ -5,9 +5,6 @@
         public int Id { get; set; }
         public string FrontText { get; set; } = string.Empty;
         public string BackText { get; set; } = string.Empty;
-
-        // -------------- Spaced Repetition System (SRS) properties --------------
-
         public DateTime NextReview { get; set; } = DateTime.UtcNow;
         public int Repetition { get; set; } = 0;
         public CardStatus Status { get; set; } = CardStatus.New;
@@ -18,9 +15,6 @@
         public string? ImagePublicId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
-        // -------------- Navigation properties --------------
-
         public int DeckId { get; set; }
     }
 }

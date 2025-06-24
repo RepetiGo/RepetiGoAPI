@@ -95,7 +95,6 @@ namespace RepetiGo.Api.Controllers
         // PATCH /api/decks/{deckId}/sharing
         // POST /api/shared/decks/{deckId}/import
         // </summary>
-        [Authorize]
         [HttpGet("shared")]
         public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetPublicDecks([FromQuery] Query? query)
         {

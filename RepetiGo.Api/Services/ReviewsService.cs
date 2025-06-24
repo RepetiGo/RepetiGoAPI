@@ -1,12 +1,19 @@
-﻿namespace RepetiGo.Api.Services
+﻿
+using AutoMapper;
+
+using RepetiGo.Api.Dtos.ReviewDtos;
+
+namespace RepetiGo.Api.Services
 {
     public class ReviewsService : IReviewsService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public ReviewsService(IUnitOfWork unitOfWork)
+        public ReviewsService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task ProcessReview(Card card, ReviewRating reviewRating, Settings settings)
@@ -26,8 +33,9 @@
             await _unitOfWork.SaveAsync();
         }
 
-        private void ProcessLearningCard(Card card, ReviewRating reviewRating, Settings settings)
+        private static void ProcessLearningCard(Card card, ReviewRating reviewRating, Settings settings)
         {
+            var now = DateTime.UtcNow;
             card.Status = card.Status == CardStatus.New ? CardStatus.Learning : card.Status;
             var steps = ParseSteps(card.Status == CardStatus.Learning ? settings.LearningSteps : settings.RelearningSteps);
 
@@ -36,87 +44,105 @@
                 card.LearningStep = 0;
                 if (steps.Count > 0)
                 {
-                    card.NextReview = DateTime.UtcNow.Add(steps[0]);
+                    card.NextReview = now.Add(steps[0]);
                 }
                 else // No steps defined, fallback to minimum interval
                 {
-                    card.NextReview = DateTime.UtcNow.AddDays(settings.MinimumInterval);
+                    card.NextReview = now.AddDays(settings.MinimumInterval);
                 }
             }
-            else if (reviewRating == ReviewRating.Good || reviewRating == ReviewRating.Hard)
+            else // Process Good, Hard, or Easy ratings
             {
-                card.LearningStep++;
+                if (reviewRating == ReviewRating.Easy) // If the user rated the card as Easy
+                {
+                    card.NextReview = now.AddDays(settings.EasyInterval);
+                    card.EasinessFactor += 0.15;
 
-                if (card.LearningStep < steps.Count)
-                {
-                    card.NextReview = DateTime.UtcNow.Add(steps[card.LearningStep] * (reviewRating == ReviewRating.Hard ? settings.HardInterval : 1));
-                }
-                else
-                {
-                    // Graduation
                     card.Status = CardStatus.Review;
-                    card.Repetition = 0;
-                    card.NextReview = DateTime.UtcNow.AddDays(settings.GraduatingInterval * (reviewRating == ReviewRating.Hard ? settings.HardInterval : 1));
+                    card.Repetition = 1;
                 }
-            }
-            else if (reviewRating == ReviewRating.Easy)
-            {
-                card.Status = CardStatus.Review;
-                card.Repetition = 0;
-                card.NextReview = DateTime.UtcNow.AddDays(settings.EasyInterval);
+                else if (card.LearningStep < steps.Count - 1) // Still in learning steps
+                {
+                    card.LearningStep++;
+                    card.NextReview = now.Add(steps[card.LearningStep]);
+                }
+                else // Finished learning steps
+                {
+                    if (card.Status == CardStatus.Relearning) // If the card is in relearning, use the failed interval
+                    {
+                        card.NextReview = now.AddDays(card.FailedInterval ?? (reviewRating == ReviewRating.Easy ? settings.EasyInterval : settings.GraduatingInterval));
+                        card.FailedInterval = null; // Reset the failed interval after using it
+                    }
+                    else // If the card is in review, set the next review based on the rating
+                    {
+                        card.NextReview = now.AddDays(settings.GraduatingInterval);
+                    }
+
+                    card.Status = CardStatus.Review;
+                    card.Repetition = 1;
+                }
             }
         }
 
-        private void ProcessReviewCard(Card card, ReviewRating reviewRating, Settings settings)
+        private static void ProcessReviewCard(Card card, ReviewRating reviewRating, Settings settings)
         {
-            if (reviewRating == ReviewRating.Again) // Switch to relearning mode
+            var now = DateTime.UtcNow;
+            var previousInterval = now - (card.LastReviewed ?? now); // Upgrade from traditional SM-2
+
+            if (reviewRating == ReviewRating.Again) // Reset to relearning
             {
                 card.Status = CardStatus.Relearning;
                 card.LearningStep = 0;
                 card.Repetition = 0;
 
-                // Reschedule before entering the first relearning step by recalculating the final timestamp
-                var previousInterval = DateTime.UtcNow - (card.LastReviewed ?? DateTime.UtcNow); // Upgrade from tranditional SM-2
+                // Store the failed interval for later use
+                var newIntervalDays = settings.NewInterval * previousInterval.TotalDays;
+                newIntervalDays = Math.Clamp(newIntervalDays, settings.MinimumInterval, settings.MaximumInterval);
+                card.FailedInterval = newIntervalDays;
 
-                var newIntervalDays = settings.NewInterval * previousInterval;
+                var steps = ParseSteps(settings.RelearningSteps);
 
-                // Calculate the next review time based on the settings
-                if (settings.MinimumInterval > 0 && newIntervalDays < TimeSpan.FromDays(settings.MinimumInterval))
+                // Reset to the first relearning step
+                if (steps.Count > 0)
                 {
-                    newIntervalDays = TimeSpan.FromDays(settings.MinimumInterval);
+                    card.NextReview = now.Add(steps[0]);
                 }
-                else if (settings.MaximumInterval > 0 && newIntervalDays > TimeSpan.FromDays(settings.MaximumInterval))
+                else // No steps defined, fallback to minimum interval
                 {
-                    newIntervalDays = TimeSpan.FromDays(settings.MaximumInterval);
+                    card.NextReview = now.AddDays(settings.MinimumInterval);
                 }
-
-                card.NextReview = DateTime.UtcNow.Add(newIntervalDays);
             }
-            else // Successful review - Standard SM-2 logic
+            else // Successful review - SM-2 algorithm
             {
-                // Calculate a new interval in days
                 double newIntervalInDays;
-                if (card.Repetition == 0)
+                if (reviewRating == ReviewRating.Hard)
                 {
-                    newIntervalInDays = settings.GraduatingInterval;
-                }
-                else if (card.Repetition == 1)
-                {
-                    newIntervalInDays = settings.GraduatingInterval * 2;
+                    newIntervalInDays = previousInterval.TotalDays * settings.HardInterval; // Apply Hard Interval multiplier if applicable
                 }
                 else
                 {
-                    var previousInterval = DateTime.UtcNow - (card.LastReviewed ?? DateTime.UtcNow); // Upgrade from traditional SM-2
-                    newIntervalInDays = Math.Round(previousInterval.TotalDays * card.EasinessFactor);
+                    if (card.Repetition == 0)
+                    {
+                        newIntervalInDays = settings.GraduatingInterval;
+                    }
+                    else if (card.Repetition == 1)
+                    {
+                        newIntervalInDays = settings.GraduatingInterval * card.EasinessFactor;
+                    }
+                    else
+                    {
+                        newIntervalInDays = Math.Round(previousInterval.TotalDays * card.EasinessFactor);
+                    }
+
+                    if (reviewRating == ReviewRating.Easy)
+                    {
+                        newIntervalInDays *= settings.EasyBonus; // Apply Easy Bonus multiplier if applicable
+                    }
                 }
+
                 newIntervalInDays = Math.Clamp(newIntervalInDays, settings.MinimumInterval, settings.MaximumInterval);
 
-                if (reviewRating == ReviewRating.Hard)
-                {
-                    newIntervalInDays *= settings.HardInterval; // Apply Hard Interval multiplier if applicable
-                }
-
-                card.NextReview = DateTime.UtcNow.AddDays(newIntervalInDays);
+                card.NextReview = now.AddDays(newIntervalInDays);
 
                 // Update SRS state
                 card.Repetition++;
@@ -155,5 +181,69 @@
             return steps;
         }
 
+        public ICollection<ReviewResponse> ProcessPreviewReviews(ICollection<Card> cards, Settings settings)
+        {
+            var reviewResponses = cards.Select(card =>
+            {
+                var reviewResponse = SimulateReview(card, settings);
+                return reviewResponse;
+            }).ToList();
+
+            return reviewResponses;
+        }
+
+        private ReviewResponse SimulateReview(Card card, Settings settings)
+        {
+            var now = DateTime.UtcNow;
+
+            var againCard = (Card)card.Clone();
+            ProcessPreviewReview(againCard, ReviewRating.Again, settings);
+            var againInterval = againCard.NextReview - now;
+
+            var goodCard = (Card)card.Clone();
+            ProcessPreviewReview(goodCard, ReviewRating.Good, settings);
+            var goodInterval = goodCard.NextReview - now;
+
+            var hardCard = (Card)card.Clone();
+            ProcessPreviewReview(hardCard, ReviewRating.Hard, settings);
+            var hardInterval = hardCard.NextReview - now;
+
+            var easyCard = (Card)card.Clone();
+            ProcessPreviewReview(easyCard, ReviewRating.Easy, settings);
+            var easyInterval = easyCard.NextReview - now;
+
+            var reviewResponse = _mapper.Map<ReviewResponse>(card);
+            reviewResponse.ReviewTimeResult = new ReviewTimeResult
+            {
+                Again = FormatTimeSpan(againInterval),
+                Good = FormatTimeSpan(goodInterval),
+                Hard = FormatTimeSpan(hardInterval),
+                Easy = FormatTimeSpan(easyInterval)
+            };
+
+            return reviewResponse;
+        }
+
+        public void ProcessPreviewReview(Card card, ReviewRating reviewRating, Settings settings)
+        {
+            if (card.Status == CardStatus.Review)
+            {
+                ProcessReviewCard(card, reviewRating, settings);
+            }
+            else
+            {
+                ProcessLearningCard(card, reviewRating, settings);
+            }
+        }
+
+        private static string FormatTimeSpan(TimeSpan timeSpan)
+        {
+            if (timeSpan.TotalSeconds < 60) return $"{Math.Floor(timeSpan.TotalSeconds)}s";
+            if (timeSpan.TotalMinutes < 60) return $"{Math.Floor(timeSpan.TotalMinutes)}m";
+            if (timeSpan.TotalHours < 24) return $"{Math.Floor(timeSpan.TotalHours)}h";
+            if (timeSpan.TotalDays < 30) return $"{Math.Floor(timeSpan.TotalDays)}d";
+            if (timeSpan.TotalDays < 365) return $"~{Math.Floor(timeSpan.TotalDays / 30.4)}mo";
+            return $"~{Math.Floor(timeSpan.TotalDays / 365.25)}y";
+        }
     }
 }

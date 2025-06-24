@@ -1,6 +1,4 @@
-using RepetiGo.Api.Interfaces.Repositories;
-
-namespace RepetiGo.Api.Interfaces
+namespace RepetiGo.Api.Interfaces.Repositories
 {
     public interface IUnitOfWork
     {
