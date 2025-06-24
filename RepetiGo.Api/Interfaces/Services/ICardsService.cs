@@ -12,7 +12,7 @@ namespace RepetiGo.Api.Interfaces.Services
         Task<ServiceResult<CardResponse>> UpdateCardAsync(int deckId, int cardId, UpdateCardRequest updateCardRequest, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<object>> DeleteCardAsync(int deckId, int cardId, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<PreviewCardResponse>> GenerateCardAsync(GenerateRequest generateRequest, ClaimsPrincipal claimsPrincipal);
-        Task<ServiceResult<ICollection<CardResponse>>> GetDueCardsByDeckIdAsync(int deckId, Query? query, ClaimsPrincipal claimsPrincipal);
-        Task<ServiceResult<CardResponse>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<ICollection<ReviewResponse>>> GetDueCardsByDeckIdAsync(int deckId, Query? query, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<object>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal);
     }
 }

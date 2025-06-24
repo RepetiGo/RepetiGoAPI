@@ -112,11 +112,11 @@ namespace RepetiGo.Api.Controllers
         }
 
         [HttpGet("decks/{deckId:int}/due")]
-        public async Task<ActionResult<ServiceResult<ICollection<CardResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] Query? query)
+        public async Task<ActionResult<ServiceResult<ICollection<ReviewResponse>>>> GetDueCardsByDeckIdAsync([FromRoute] int deckId, [FromQuery] Query? query)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<ICollection<CardResponse>>.Failure(
+                return BadRequest(ServiceResult<ICollection<ReviewResponse>>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));
@@ -126,12 +126,12 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPost("decks/{deckId:int}/cards/{cardId:int}/review")]
-        public async Task<ActionResult<ServiceResult<CardResponse>>> ReviewCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] ReviewRequest reviewRequest)
+        [HttpPut("decks/{deckId:int}/cards/{cardId:int}/review")]
+        public async Task<ActionResult<ServiceResult<object>>> ReviewCardAsync([FromRoute] int deckId, [FromRoute] int cardId, [FromBody] ReviewRequest reviewRequest)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ServiceResult<CardResponse>.Failure(
+                return BadRequest(ServiceResult<object>.Failure(
                     "Validation failed",
                     HttpStatusCode.BadRequest
                 ));

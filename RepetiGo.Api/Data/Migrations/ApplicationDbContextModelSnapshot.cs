@@ -258,6 +258,9 @@ namespace RepetiGo.Api.Data.Migrations
                     b.Property<double>("EasinessFactor")
                         .HasColumnType("float");
 
+                    b.Property<double?>("FailedInterval")
+                        .HasColumnType("float");
+
                     b.Property<string>("FrontText")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -374,6 +377,9 @@ namespace RepetiGo.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<double>("EasyBonus")
+                        .HasColumnType("float");
 
                     b.Property<double>("EasyInterval")
                         .HasColumnType("float");

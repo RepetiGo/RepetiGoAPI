@@ -359,12 +359,12 @@ namespace RepetiGo.Api.Services
             return ServiceResult<PreviewCardResponse>.Success(previewCardResponse, HttpStatusCode.Created);
         }
 
-        public async Task<ServiceResult<ICollection<CardResponse>>> GetDueCardsByDeckIdAsync(int deckId, Query? query, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<ICollection<ReviewResponse>>> GetDueCardsByDeckIdAsync(int deckId, Query? query, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<ICollection<CardResponse>>.Failure(
+                return ServiceResult<ICollection<ReviewResponse>>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -373,7 +373,7 @@ namespace RepetiGo.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<ICollection<CardResponse>>.Failure(
+                return ServiceResult<ICollection<ReviewResponse>>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -381,9 +381,18 @@ namespace RepetiGo.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<ICollection<CardResponse>>.Failure(
+                return ServiceResult<ICollection<ReviewResponse>>.Failure(
                     "You do not have permission to access this deck",
                     HttpStatusCode.Forbidden
+                );
+            }
+
+            var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
+            if (settings is null)
+            {
+                return ServiceResult<ICollection<ReviewResponse>>.Failure(
+                    "User settings not found",
+                    HttpStatusCode.NotFound
                 );
             }
 
@@ -391,17 +400,17 @@ namespace RepetiGo.Api.Services
                 filter: c => c.DeckId == deckId && c.NextReview <= DateTime.UtcNow,
                 query: query);
 
-            var CardsResponse = _mapper.Map<ICollection<CardResponse>>(dueCards);
+            var reviewsResponse = _reviewsService.ProcessPreviewReviews(dueCards, settings);
 
-            return ServiceResult<ICollection<CardResponse>>.Success(CardsResponse, HttpStatusCode.OK);
+            return ServiceResult<ICollection<ReviewResponse>>.Success(reviewsResponse, HttpStatusCode.OK);
         }
 
-        public async Task<ServiceResult<CardResponse>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal)
+        public async Task<ServiceResult<object>> ReviewCardAsync(int deckId, int cardId, ReviewRequest reviewRequest, ClaimsPrincipal claimsPrincipal)
         {
             var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "User not authenticated",
                     HttpStatusCode.Unauthorized
                 );
@@ -410,7 +419,7 @@ namespace RepetiGo.Api.Services
             var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
             if (deck is null)
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "Deck not found",
                     HttpStatusCode.NotFound
                 );
@@ -418,7 +427,7 @@ namespace RepetiGo.Api.Services
 
             if (deck.UserId != userId)
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "You do not have permission to access this deck",
                     HttpStatusCode.Forbidden
                 );
@@ -427,7 +436,7 @@ namespace RepetiGo.Api.Services
             var card = await _unitOfWork.CardsRepository.GetByIdAsync(cardId);
             if (card is null || card.DeckId != deckId)
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "Card not found",
                     HttpStatusCode.NotFound
                 );
@@ -435,7 +444,7 @@ namespace RepetiGo.Api.Services
 
             if (card.NextReview > DateTime.UtcNow)
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "Card is not due for review",
                     HttpStatusCode.BadRequest
                 );
@@ -444,7 +453,7 @@ namespace RepetiGo.Api.Services
             var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
             if (settings is null)
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "Settings not found",
                     HttpStatusCode.NotFound
                 );
@@ -452,7 +461,7 @@ namespace RepetiGo.Api.Services
 
             if (!Enum.IsDefined(reviewRequest.Rating))
             {
-                return ServiceResult<CardResponse>.Failure(
+                return ServiceResult<object>.Failure(
                     "Invalid review rating",
                     HttpStatusCode.BadRequest
                 );
@@ -460,8 +469,10 @@ namespace RepetiGo.Api.Services
 
             await _reviewsService.ProcessReview(card, reviewRequest.Rating, settings);
 
-            var cardResponse = _mapper.Map<CardResponse>(card);
-            return ServiceResult<CardResponse>.Success(cardResponse, HttpStatusCode.OK);
+            return ServiceResult<object>.Success(
+                new { Message = "Card reviewed successfully" },
+                HttpStatusCode.OK
+            );
         }
     }
 }

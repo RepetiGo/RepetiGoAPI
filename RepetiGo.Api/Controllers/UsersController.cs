@@ -4,6 +4,7 @@ using RepetiGo.Api.Dtos.UserDtos;
 
 namespace RepetiGo.Api.Controllers
 {
+    [AllowAnonymous]
     [Route("api/users")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -15,7 +16,6 @@ namespace RepetiGo.Api.Controllers
             _usersService = tokenService;
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult<ServiceResult<object>>> Register([FromBody] RegisterRequest registerRequest)
         {
@@ -31,7 +31,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [AllowAnonymous]
         [HttpGet("confirm")]
         public async Task<ActionResult<ServiceResult<object>>> ConfirmEmail(string userId, string token)
         {
@@ -54,7 +53,6 @@ namespace RepetiGo.Api.Controllers
             return Content(result.Data.ToString() ?? string.Empty, "text/html");
         }
 
-        [AllowAnonymous]
         [HttpGet("resend")]
         public async Task<ActionResult<ServiceResult<object>>> ResendConfirmationEmail([FromQuery] string email)
         {
@@ -76,7 +74,6 @@ namespace RepetiGo.Api.Controllers
             return Content(result.Data.ToString() ?? string.Empty, "text/html");
         }
 
-        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<ServiceResult<UserResponse>>> LogIn([FromBody] LogInRequest logInRequest)
         {
@@ -92,7 +89,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [AllowAnonymous]
         [HttpPost("refresh/{userId}")]
         public async Task<ActionResult<ServiceResult<UserResponse>>> RefreshToken([FromRoute] string userId, [FromBody] RefreshTokenRequest refreshTokenRequest)
         {
@@ -108,7 +104,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [AllowAnonymous]
         [HttpPost("reset-password")]
         public async Task<ActionResult<ServiceResult<object>>> ResetPassword([FromBody] ResetPasswordRequest resetPasswordRequest)
         {
@@ -123,7 +118,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        [AllowAnonymous]
         [HttpPost("forgot-password")]
         public async Task<ActionResult<ServiceResult<object>>> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
         {
