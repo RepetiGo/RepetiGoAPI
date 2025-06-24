@@ -1,4 +1,5 @@
 ﻿using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.SettingsDtos;
 using RepetiGo.Api.Dtos.UserDtos;
 
 namespace RepetiGo.Api.Interfaces.Services
@@ -16,5 +17,6 @@ namespace RepetiGo.Api.Interfaces.Services
         Task<ServiceResult<ProfileResponse>> GetProfile(ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<ProfileResponse>> UpdateUsername(UpdateUsernameRequest updateUsernameRequest, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<ProfileResponse>> UpdateAvatar(UpdateAvatarRequest updateAvatarRequest, ClaimsPrincipal claimsPrincipal);
+        Task<ServiceResult<SettingsResponse>> UpdateSettings(UpdateSettingsRequest updateSettingsRequest, ClaimsPrincipal claimsPrincipal);
     }
 }

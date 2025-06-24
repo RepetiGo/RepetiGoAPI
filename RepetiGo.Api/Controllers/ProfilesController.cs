@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
 using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.SettingsDtos;
 
 namespace RepetiGo.Api.Controllers
 {
@@ -66,6 +67,20 @@ namespace RepetiGo.Api.Controllers
             }
 
             var result = await _usersService.UpdateAvatar(updateAvatarRequest, User);
+            return result.ToActionResult();
+        }
+
+        [HttpPut("settings")]
+        public async Task<ActionResult<ServiceResult<SettingsResponse>>> UpdateSettings([FromBody] UpdateSettingsRequest updateSettingsRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<SettingsResponse>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+            var result = await _usersService.UpdateSettings(updateSettingsRequest, User);
             return result.ToActionResult();
         }
     }

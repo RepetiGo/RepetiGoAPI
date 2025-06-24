@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using RepetiGo.Api.Dtos.ProfileDtos;
+using RepetiGo.Api.Dtos.SettingsDtos;
 using RepetiGo.Api.Dtos.UserDtos;
 
 namespace RepetiGo.Api.Services
@@ -29,6 +30,7 @@ namespace RepetiGo.Api.Services
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly ISettingsService _settingsService;
         private readonly IUploadsService _uploadsService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public UsersService(IOptions<JwtConfig> options,
             IDistributedCache cache,
@@ -38,7 +40,8 @@ namespace RepetiGo.Api.Services
             IHttpContextAccessor httpContextAccessor,
             IUrlHelperFactory urlHelperFactory,
             ISettingsService settingsService,
-            IUploadsService uploadsService)
+            IUploadsService uploadsService,
+            IUnitOfWork unitOfWork)
         {
             _jwtConfig = options.Value;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Secret));
@@ -50,6 +53,7 @@ namespace RepetiGo.Api.Services
             _urlHelperFactory = urlHelperFactory;
             _settingsService = settingsService;
             _uploadsService = uploadsService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ServiceResult<object>> Register(RegisterRequest registerRequest)
@@ -604,6 +608,37 @@ namespace RepetiGo.Api.Services
 
             return ServiceResult<ProfileResponse>.Success(
                 profileResponse,
+                HttpStatusCode.OK
+            );
+        }
+
+        public async Task<ServiceResult<SettingsResponse>> UpdateSettings(UpdateSettingsRequest updateSettingsRequest, ClaimsPrincipal claimsPrincipal)
+        {
+            var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<SettingsResponse>.Failure(
+                    "User not authenticated",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
+            if (settings == null)
+            {
+                return ServiceResult<SettingsResponse>.Failure(
+                    "Settings not found.",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            _mapper.Map(updateSettingsRequest, settings);
+            await _unitOfWork.SettingsRepository.UpdateAsync(settings);
+            await _unitOfWork.SaveAsync();
+
+            var settingsResponse = _mapper.Map<SettingsResponse>(settings);
+            return ServiceResult<SettingsResponse>.Success(
+                settingsResponse,
                 HttpStatusCode.OK
             );
         }

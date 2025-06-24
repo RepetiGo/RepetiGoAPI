@@ -12,6 +12,7 @@
         public string RelearningSteps { get; set; } = string.Empty;
         public double MinimumInterval { get; set; }
         public double MaximumInterval { get; set; }
+        public double EasyBonus { get; set; }
         public double HardInterval { get; set; }
         public double NewInterval { get; set; }
         public DateTime CreatedAt { get; set; }
