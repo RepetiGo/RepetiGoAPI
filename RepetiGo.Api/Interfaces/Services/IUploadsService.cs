@@ -7,5 +7,6 @@ namespace RepetiGo.Api.Interfaces.Services
         Task<ImageUploadResponse> UploadImageAsync(IFormFile formFile);
         Task<ImageUploadResponse> UploadImageAsync(byte[] bytes);
         Task<ImageUploadResponse> DeleteImageAsync(string oldAvatarPublicId);
+        Task<ImageUploadResponse> CopyImageAsync(string imageUrlSource);
     }
 }

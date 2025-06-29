@@ -169,7 +169,8 @@ namespace RepetiGo.Api.Data.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Visibility = table.Column<int>(type: "int", nullable: false),
-                    Ratings = table.Column<int>(type: "int", nullable: false),
+                    Downloads = table.Column<int>(type: "int", nullable: false),
+                    ForkedFromUsername = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)

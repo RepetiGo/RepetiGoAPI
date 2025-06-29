@@ -91,10 +91,6 @@ namespace RepetiGo.Api.Controllers
             return result.ToActionResult();
         }
 
-        // <summary>
-        // PATCH /api/decks/{deckId}/sharing
-        // POST /api/shared/decks/{deckId}/import
-        // </summary>
         [HttpGet("shared")]
         public async Task<ActionResult<ServiceResult<ICollection<DeckResponse>>>> GetPublicDecks([FromQuery] Query? query)
         {
@@ -107,6 +103,21 @@ namespace RepetiGo.Api.Controllers
             }
 
             var result = await _decksService.GetPublicDecksAsync(query, User);
+            return result.ToActionResult();
+        }
+
+        [HttpPost("shared/{deckId:int}/clone")]
+        public async Task<ActionResult<ServiceResult<DeckResponse>>> CloneSharedDeck([FromRoute] int deckId, UpdateDeckRequest updateDeckRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ServiceResult<DeckResponse>.Failure(
+                    "Validation failed",
+                    HttpStatusCode.BadRequest
+                ));
+            }
+
+            var result = await _decksService.CloneSharedDeckAsync(deckId, updateDeckRequest, User);
             return result.ToActionResult();
         }
     }

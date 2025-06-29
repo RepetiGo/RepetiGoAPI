@@ -71,7 +71,7 @@ namespace RepetiGo.Api.Services
             }
 
             var decks = await _unitOfWork.DecksRepository.GetAllAsync(
-                filter: d => d.Visibility == CardVisibility.Public,
+                filter: d => d.Visibility == CardVisibility.Public && d.UserId != userId,
                 query: query);
 
             var decksResponse = _mapper.Map<ICollection<DeckResponse>>(decks);
@@ -251,6 +251,100 @@ namespace RepetiGo.Api.Services
         public bool HasAccessToDeck(Deck deck, string userId)
         {
             return deck.UserId == userId || deck.Visibility == CardVisibility.Public;
+        }
+
+        public async Task<ServiceResult<DeckResponse>> CloneSharedDeckAsync(int deckId, UpdateDeckRequest updateDeckRequest, ClaimsPrincipal claimsPrincipal)
+        {
+            var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<DeckResponse>.Failure(
+                    "User not authenticated",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var deck = await _unitOfWork.DecksRepository.GetByIdAsync(deckId);
+            if (deck is null)
+            {
+                return ServiceResult<DeckResponse>.Failure(
+                    "Deck not found",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            if (deck.Visibility != CardVisibility.Public || deck.UserId == userId) // Ensure the deck is public and not owned by the user
+            {
+                return ServiceResult<DeckResponse>.Failure(
+                    "You can only clone public decks",
+                    HttpStatusCode.Forbidden
+                );
+            }
+
+            var user = await _userManager.FindByIdAsync(deck.UserId);
+            if (user is null)
+            {
+                return ServiceResult<DeckResponse>.Failure(
+                    "User who created the deck not found",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            // Copy deck
+            var clonedDeck = new Deck
+            {
+                Name = updateDeckRequest.Name ?? deck.Name,
+                Description = updateDeckRequest.Description ?? deck.Description,
+                Visibility = updateDeckRequest.Visibility,
+                UserId = userId,
+                ForkedFromUsername = user.UserName
+            };
+
+            var cards = await _unitOfWork.CardsRepository.GetAllAsync(
+                filter: c => c.DeckId == deckId);
+            if (cards is null || cards.Count == 0)
+            {
+                return ServiceResult<DeckResponse>.Failure(
+                    "No cards found in the deck to clone",
+                    HttpStatusCode.NotFound
+                );
+            }
+
+            // Clone cards
+            foreach (var card in cards)
+            {
+                if (card.ImagePublicId is not null && card.ImageUrl is not null)
+                {
+                    var imageUploadResult = await _uploadsService.CopyImageAsync(card.ImageUrl);
+                    if (!imageUploadResult.IsSuccess)
+                    {
+                        return ServiceResult<DeckResponse>.Failure(
+                            "Failed to clone card images",
+                            HttpStatusCode.InternalServerError
+                        );
+                    }
+
+                    clonedDeck.Cards.Add(new Card
+                    {
+                        FrontText = card.FrontText,
+                        BackText = card.BackText,
+                        DeckId = clonedDeck.Id,
+                        ImagePublicId = imageUploadResult.PublicId,
+                        ImageUrl = imageUploadResult.SecureUrl,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            // Increment downloads for the original dec
+            deck.Downloads++;
+
+            await _unitOfWork.DecksRepository.UpdateAsync(deck);
+            await _unitOfWork.DecksRepository.AddAsync(clonedDeck);
+            await _unitOfWork.SaveAsync();
+            var clonedDeckResponse = _mapper.Map<DeckResponse>(clonedDeck);
+            return ServiceResult<DeckResponse>.Success(clonedDeckResponse, HttpStatusCode.Created);
         }
     }
 }

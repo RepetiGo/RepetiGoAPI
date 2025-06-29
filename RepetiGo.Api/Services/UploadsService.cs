@@ -23,6 +23,42 @@ namespace RepetiGo.Api.Services
             _cloudinary = new Cloudinary(account);
         }
 
+        public async Task<ImageUploadResponse> CopyImageAsync(string imageUrlSource)
+        {
+            if (string.IsNullOrEmpty(imageUrlSource))
+            {
+                return new ImageUploadResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "Public ID is required for copying."
+                };
+            }
+
+            var uploadParams = new ImageUploadParams
+            {
+
+                File = new FileDescription(imageUrlSource),
+                UploadPreset = _cloudinaryConfig.UploadPreset,
+            };
+
+            var copyResult = await _cloudinary.UploadAsync(uploadParams);
+            if (copyResult.Error is not null)
+            {
+                return new ImageUploadResponse
+                {
+                    IsSuccess = false,
+                    ErrorMessage = copyResult.Error.Message
+                };
+            }
+
+            return new ImageUploadResponse
+            {
+                IsSuccess = true,
+                SecureUrl = copyResult.SecureUrl.ToString(),
+                PublicId = copyResult.PublicId
+            };
+        }
+
         public async Task<ImageUploadResponse> DeleteImageAsync(string oldAvatarPublicId)
         {
             if (string.IsNullOrEmpty(oldAvatarPublicId))
@@ -33,6 +69,7 @@ namespace RepetiGo.Api.Services
                     ErrorMessage = "Public ID is required for deletion."
                 };
             }
+
             var deleteParams = new DeletionParams(oldAvatarPublicId);
             var deletionResult = await _cloudinary.DestroyAsync(deleteParams);
             return new ImageUploadResponse
