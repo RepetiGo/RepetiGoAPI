@@ -335,6 +335,17 @@ namespace RepetiGo.Api.Services
                         UpdatedAt = DateTime.UtcNow
                     });
                 }
+                else
+                {
+                    clonedDeck.Cards.Add(new Card
+                    {
+                        FrontText = card.FrontText,
+                        BackText = card.BackText,
+                        DeckId = clonedDeck.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
             }
 
             // Increment downloads for the original dec

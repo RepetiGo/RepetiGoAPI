@@ -30,13 +30,12 @@ namespace RepetiGo.Api.Services
                 return new ImageUploadResponse
                 {
                     IsSuccess = false,
-                    ErrorMessage = "Public ID is required for copying."
+                    ErrorMessage = "Image URL is required for copying."
                 };
             }
 
             var uploadParams = new ImageUploadParams
             {
-
                 File = new FileDescription(imageUrlSource),
                 UploadPreset = _cloudinaryConfig.UploadPreset,
             };
