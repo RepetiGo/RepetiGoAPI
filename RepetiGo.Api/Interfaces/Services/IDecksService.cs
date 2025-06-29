@@ -11,5 +11,6 @@ namespace RepetiGo.Api.Interfaces.Services
         Task<ServiceResult<object>> DeleteDeckAsync(int deckId, ClaimsPrincipal claimsPrincipal);
         Task<ServiceResult<ICollection<DeckResponse>>> GetPublicDecksAsync(Query? query, ClaimsPrincipal claimsPrincipal);
         bool HasAccessToDeck(Deck deck, string userId);
+        Task<ServiceResult<DeckResponse>> CloneSharedDeckAsync(int deckId, UpdateDeckRequest updateDeckRequest, ClaimsPrincipal claimsPrincipal);
     }
 }

@@ -12,7 +12,7 @@ using RepetiGo.Api.Data;
 namespace RepetiGo.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250624153407_AddCoreTables")]
+    [Migration("20250629032236_AddCoreTables")]
     partial class AddCoreTables
     {
         /// <inheritdoc />
@@ -317,13 +317,16 @@ namespace RepetiGo.Api.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("Downloads")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ForkedFromUsername")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Ratings")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

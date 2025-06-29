@@ -57,9 +57,9 @@ namespace RepetiGo.Api.Services
                 {
                     card.NextReview = now.AddDays(settings.EasyInterval);
                     card.EasinessFactor += 0.15;
-
                     card.Status = CardStatus.Review;
                     card.Repetition = 1;
+                    card.LearningStep = steps.Count - 1;
                 }
                 else if (card.LearningStep < steps.Count - 1) // Still in learning steps
                 {
@@ -80,6 +80,7 @@ namespace RepetiGo.Api.Services
 
                     card.Status = CardStatus.Review;
                     card.Repetition = 1;
+                    card.LearningStep = steps.Count - 1;
                 }
             }
         }

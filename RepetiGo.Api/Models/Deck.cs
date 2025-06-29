@@ -12,7 +12,9 @@
 
         public CardVisibility Visibility { get; set; } = CardVisibility.Public;
 
-        public int Ratings { get; set; } = 0;
+        public int Downloads { get; set; } = 0;
+
+        public string? ForkedFromUsername { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
