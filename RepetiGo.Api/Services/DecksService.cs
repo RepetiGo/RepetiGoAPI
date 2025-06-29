@@ -337,7 +337,7 @@ namespace RepetiGo.Api.Services
                 }
             }
 
-            // Increment downloads for the original dec
+            // Increment downloads for the original deck
             deck.Downloads++;
 
             await _unitOfWork.DecksRepository.UpdateAsync(deck);
