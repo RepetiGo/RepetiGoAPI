@@ -338,23 +338,26 @@ namespace RepetiGo.Api.Services
 
             generateRequest.FrontText = generatedContentResult.FrontText;
             generateRequest.BackText = generatedContentResult.BackText;
-
-            var generatedImageResult = await _aiGeneratorService.GenerateCardImageAsync(generateRequest);
-            if (!generatedImageResult.IsSuccess)
-            {
-                return ServiceResult<PreviewCardResponse>.Failure(
-                    generatedImageResult.ErrorMessage ?? "Failed to generate image",
-                    HttpStatusCode.InternalServerError
-                );
-            }
-
             var previewCardResponse = new PreviewCardResponse
             {
-                FrontText = generatedContentResult.FrontText ?? string.Empty,
-                BackText = generatedContentResult.BackText ?? string.Empty,
-                ImageUrl = generatedImageResult.ImageUrl ?? string.Empty,
-                ImagePublicId = generatedImageResult.ImagePublicId ?? string.Empty
+                FrontText = generatedContentResult.FrontText,
+                BackText = generatedContentResult.BackText,
             };
+
+            if (generateRequest.GenerateImage)
+            {
+                var generatedImageResult = await _aiGeneratorService.GenerateCardImageAsync(generateRequest);
+                if (!generatedImageResult.IsSuccess)
+                {
+                    return ServiceResult<PreviewCardResponse>.Failure(
+                        generatedImageResult.ErrorMessage ?? "Failed to generate image",
+                        HttpStatusCode.InternalServerError
+                    );
+                }
+
+                previewCardResponse.ImageUrl = generatedImageResult.ImageUrl;
+                previewCardResponse.ImagePublicId = generatedImageResult.ImagePublicId;
+            }
 
             return ServiceResult<PreviewCardResponse>.Success(previewCardResponse, HttpStatusCode.Created);
         }
