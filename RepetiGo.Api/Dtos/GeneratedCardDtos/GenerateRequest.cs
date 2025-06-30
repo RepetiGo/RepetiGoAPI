@@ -19,6 +19,8 @@ namespace RepetiGo.Api.Dtos.GeneratedCardDtos
 
         public bool GenerateImage { get; set; } = false;
 
+        public string? ImageDescription { get; set; }
+
         [EnumDataType(typeof(ImagePromptLanguage), ErrorMessage = "Invalid image prompt language.")]
         public ImagePromptLanguage ImagePromptLanguage { get; set; } = ImagePromptLanguage.Auto;
 

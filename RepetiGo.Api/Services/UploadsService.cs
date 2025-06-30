@@ -11,8 +11,9 @@ namespace RepetiGo.Api.Services
     {
         private readonly CloudinaryConfig _cloudinaryConfig;
         private readonly Cloudinary _cloudinary;
+        private readonly ILogger<UploadsService> _logger;
 
-        public UploadsService(IOptions<CloudinaryConfig> options)
+        public UploadsService(IOptions<CloudinaryConfig> options, ILogger<UploadsService> logger)
         {
             _cloudinaryConfig = options.Value;
             var account = new Account(
@@ -21,6 +22,7 @@ namespace RepetiGo.Api.Services
                 _cloudinaryConfig.ApiSecret
             );
             _cloudinary = new Cloudinary(account);
+            _logger = logger;
         }
 
         public async Task<ImageUploadResponse> CopyImageAsync(string imageUrlSource)
@@ -101,7 +103,7 @@ namespace RepetiGo.Api.Services
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
             watch.Stop();
-            Console.WriteLine($"Image upload took {watch.ElapsedMilliseconds} ms");
+            _logger.LogInformation("Image upload completed in {ElapsedMilliseconds} ms", watch.ElapsedMilliseconds);
 
             if (uploadResult.Error != null)
             {
@@ -133,6 +135,7 @@ namespace RepetiGo.Api.Services
 
             var uploadResult = new ImageUploadResult();
 
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             using (var stream = formFile.OpenReadStream())
             {
                 var uploadParams = new ImageUploadParams
@@ -142,6 +145,8 @@ namespace RepetiGo.Api.Services
                 };
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
+            watch.Stop();
+            _logger.LogInformation("Image upload completed in {ElapsedMilliseconds} ms", watch.ElapsedMilliseconds);
 
             if (uploadResult.Error != null)
             {
