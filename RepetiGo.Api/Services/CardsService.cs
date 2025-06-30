@@ -336,8 +336,6 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            generateRequest.FrontText = generatedContentResult.FrontText;
-            generateRequest.BackText = generatedContentResult.BackText;
             var previewCardResponse = new PreviewCardResponse
             {
                 FrontText = generatedContentResult.FrontText,
@@ -346,6 +344,7 @@ namespace RepetiGo.Api.Services
 
             if (generateRequest.GenerateImage)
             {
+                generateRequest.ImageDescription = generatedContentResult.ImageDescription;
                 var generatedImageResult = await _aiGeneratorService.GenerateCardImageAsync(generateRequest);
                 if (!generatedImageResult.IsSuccess)
                 {

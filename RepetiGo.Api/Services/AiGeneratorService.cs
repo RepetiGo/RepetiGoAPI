@@ -46,18 +46,19 @@ namespace RepetiGo.Api.Services
                 var responseJson = await pipeline.ExecuteAsync(async cancellationToken =>
                     await model.GenerateContent(
                         ResponseTemplate.GetPromptTemplate(generateRequest.Topic,
-                        generateRequest.FrontText ?? string.Empty, generateRequest.BackText ?? string.Empty),
+                        generateRequest.FrontText, generateRequest.BackText),
                         cancellationToken: cancellationToken)
                     );
 
                 var response = JsonSerializer.Deserialize<Dtos.GeneratedCardDtos.JsonResult>(responseJson.Text!);
-                if (response is not null && !string.IsNullOrWhiteSpace(response.FrontText) && !string.IsNullOrWhiteSpace(response.BackText))
+                if (response is not null && !string.IsNullOrWhiteSpace(response.FrontText) && !string.IsNullOrWhiteSpace(response.BackText) && !string.IsNullOrWhiteSpace(response.ImageDescription))
                 {
                     return new GeneratedContentResult
                     {
                         IsSuccess = true,
                         FrontText = response.FrontText.Trim(),
-                        BackText = response.BackText.Trim()
+                        BackText = response.BackText.Trim(),
+                        ImageDescription = response.ImageDescription.Trim()
                     };
                 }
 
@@ -77,24 +78,24 @@ namespace RepetiGo.Api.Services
 
         public async Task<GeneratedImageResult> GenerateCardImageAsync(GenerateRequest generateRequest)
         {
-            if (string.IsNullOrWhiteSpace(generateRequest.Topic))
+            if (string.IsNullOrWhiteSpace(generateRequest.ImageDescription))
             {
                 return new GeneratedImageResult
                 {
                     IsSuccess = false,
-                    ErrorMessage = "Topic cannot be empty."
+                    ErrorMessage = "Image description cannot be empty."
                 };
             }
 
             try
             {
-                var model = new VertexAI(projectId: _googleGeminiConfig.ProjectId).ImageGenerationModel("imagen-4.0-ultra-generate-preview-06-06");
+                var model = new VertexAI(projectId: _googleGeminiConfig.ProjectId).ImageGenerationModel("imagen-4.0-fast-generate-preview-06-06");
 
                 var pipeline = _resiliencePipelineProvider.GetPipeline("default");
 
                 var imageResponse = await pipeline.ExecuteAsync(async cancellationToken =>
                     await model.GenerateImages(
-                        ResponseTemplate.GetVisualIdeaPrompt(generateRequest.FrontText ?? string.Empty, generateRequest.BackText ?? string.Empty),
+                        ResponseTemplate.GetImageGenerationPrompt(generateRequest.ImageDescription),
                         language: generateRequest.ImagePromptLanguage,
                         numberOfImages: 1,
                         enhancePrompt: generateRequest.EnhancePrompt,
