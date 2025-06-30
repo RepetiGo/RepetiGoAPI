@@ -90,6 +90,7 @@ namespace RepetiGo.Api.Services
             }
 
             var uploadResult = new ImageUploadResult();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             using (var stream = new MemoryStream(bytes))
             {
                 var uploadParams = new ImageUploadParams
@@ -99,6 +100,8 @@ namespace RepetiGo.Api.Services
                 };
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
+            watch.Stop();
+            Console.WriteLine($"Image upload took {watch.ElapsedMilliseconds} ms");
 
             if (uploadResult.Error != null)
             {

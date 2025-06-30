@@ -88,7 +88,7 @@ namespace RepetiGo.Api.Services
 
             try
             {
-                var model = new VertexAI(projectId: _googleGeminiConfig.ProjectId).ImageGenerationModel(model: Model.Imagen4UltraExperimental);
+                var model = new VertexAI(projectId: _googleGeminiConfig.ProjectId).ImageGenerationModel("imagen-4.0-ultra-generate-preview-06-06");
 
                 var pipeline = _resiliencePipelineProvider.GetPipeline("default");
 
