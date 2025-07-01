@@ -18,7 +18,7 @@ namespace RepetiGo.Api.Repositories
             Expression<Func<T, bool>>? filter = null,
             Query? query = null)
         {
-            IQueryable<T> queryable = _dbSet;
+            IQueryable<T> queryable = _dbSet.AsNoTracking();
 
             // Apply base filter if provided in the query
             if (filter is not null)

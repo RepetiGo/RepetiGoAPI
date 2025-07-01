@@ -1,7 +1,7 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 
 using RepetiGo.Api.Dtos.ReviewDtos;
+using RepetiGo.Api.Dtos.StatsDtos;
 
 namespace RepetiGo.Api.Services
 {
@@ -245,6 +245,131 @@ namespace RepetiGo.Api.Services
             if (timeSpan.TotalDays < 30) return $"{Math.Floor(timeSpan.TotalDays)}d";
             if (timeSpan.TotalDays < 365) return $"~{Math.Floor(timeSpan.TotalDays / 30.4)}mo";
             return $"~{Math.Floor(timeSpan.TotalDays / 365.25)}y";
+        }
+
+        public async Task<ServiceResult<ActivityStatsResponse>> GetReviewsAsync(int year, ClaimsPrincipal user)
+        {
+            var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return ServiceResult<ActivityStatsResponse>.Failure(
+                    "User not authenticated",
+                    HttpStatusCode.Unauthorized);
+            }
+
+            if (year < 2000 || year > DateTime.UtcNow.Year)
+            {
+                return ServiceResult<ActivityStatsResponse>.Failure(
+                    "Year must be between 2025 and the current year",
+                    HttpStatusCode.BadRequest);
+            }
+
+            //var timeLine = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            var userReviews = await _unitOfWork.ReviewsRepository.GetAllAsync(
+                filter: r => r.Card.Deck.UserId == userId && r.CreatedAt.Year == year
+            );
+
+            var userReviewDates = userReviews
+                .Select(r => r.CreatedAt)
+                .ToList();
+
+            if (userReviewDates == null || userReviewDates.Count == 0)
+            {
+                return ServiceResult<ActivityStatsResponse>.Failure(
+                    "No reviews found for the specified year",
+                    HttpStatusCode.NotFound);
+            }
+
+            // Calculate the daily review count
+            var dailyCount = userReviewDates
+                .GroupBy(r => DateOnly.FromDateTime(r))
+                .Select(g => new MapPointData
+                {
+                    Date = g.Key,
+                    Count = g.Count()
+                })
+                .ToList();
+
+            // Create a sorted list of dates for the year
+            var learnedDays = dailyCount
+                .Select(g => g.Date)
+                .OrderBy(d => d)
+                .ToHashSet();
+
+            Console.WriteLine($"Total learned days: {learnedDays.Count}");
+
+            var (longestStreak, currentStreak) = CalculateStreaks(learnedDays);
+
+            var firstReviewDate = userReviewDates.Min();
+            //var totalDaysSinceStart = (DateTime.UtcNow - new DateTime(year, 1, 1)).TotalDays;
+            //var totalDaysSinceStart = (DateTime.UtcNow - firstReviewDate).TotalDays;
+            var totalDaysSinceStart = DateTime.UtcNow.Year == year
+                ? (DateTime.UtcNow - new DateTime(year, 1, 1)).TotalDays
+                : (new DateTime(year + 1, 1, 1) - new DateTime(year, 1, 1)).TotalDays;
+            var daysLearnedPercent = totalDaysSinceStart > 0 ? (int)Math.Round((double)learnedDays.Count / totalDaysSinceStart * 100) : 0;
+            var dailyAverage = learnedDays.Count > 0 ? (int)Math.Round((double)userReviews.Count / learnedDays.Count) : 0;
+
+            return ServiceResult<ActivityStatsResponse>.Success(
+                new ActivityStatsResponse
+                {
+                    DailyReviewCounts = dailyCount,
+                    LongestStreak = longestStreak,
+                    CurrentStreak = currentStreak,
+                    DailyAverage = dailyAverage,
+                    DayLearnedPercent = daysLearnedPercent,
+                },
+                HttpStatusCode.OK
+            );
+        }
+
+        private (int longestStreak, int currentStreak) CalculateStreaks(HashSet<DateOnly> learnedDays)
+        {
+            if (learnedDays.Count == 0)
+            {
+                return (0, 0);
+            }
+
+            var longestStreak = 0;
+            var currentStreak = 0;
+
+            var sortedDays = learnedDays.OrderBy(d => d).ToList();
+
+            for (var i = 0; i < sortedDays.Count; i++)
+            {
+                if (i == 0)
+                {
+                    // Start the first streak
+                    currentStreak = 1;
+                }
+                else
+                {
+                    if (sortedDays[i] == sortedDays[i - 1].AddDays(1)) // Check if the current day is the next day of the previous
+                    {
+                        currentStreak++;
+                    }
+                    else // If the streak is broken
+                    {
+                        longestStreak = Math.Max(longestStreak, currentStreak);
+                        currentStreak = 1;
+                    }
+                }
+            }
+
+            longestStreak = Math.Max(longestStreak, currentStreak);
+
+            // Check if today is included in the learned days
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var yesterday = today.AddDays(-1);
+
+            if (learnedDays.Contains(today) || learnedDays.Contains(yesterday))
+            {
+                return (longestStreak, currentStreak);
+            }
+            else
+            {
+                return (longestStreak, 0);
+            }
         }
     }
 }
