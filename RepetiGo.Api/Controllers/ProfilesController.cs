@@ -58,7 +58,7 @@ namespace RepetiGo.Api.Controllers
                 ));
             }
 
-            if (updateAvatarRequest.File == null || updateAvatarRequest.File.Length == 0)
+            if (updateAvatarRequest.File is null || updateAvatarRequest.File.Length == 0)
             {
                 return BadRequest(ServiceResult<ProfileResponse>.Failure(
                     "Avatar file is required",

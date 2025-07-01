@@ -111,7 +111,7 @@ namespace RepetiGo.Api.Services
 
         public async Task<ServiceResult<object>> ConfirmEmail(string userId, string token)
         {
-            if (userId == null || token == null)
+            if (userId is null || token is null)
             {
                 return ServiceResult<object>.Success(
                     ResponseTemplate.ResendVerificationEmailHtml("/api/users/resend"),
@@ -472,7 +472,7 @@ namespace RepetiGo.Api.Services
         public async Task<ServiceResult<object>> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
         {
             var existingUser = await _userManager.FindByEmailAsync(forgotPasswordRequest.Email);
-            if (existingUser == null)
+            if (existingUser is null)
             {
                 return ServiceResult<object>.Failure(
                     "No user exists with this email.",
@@ -492,7 +492,7 @@ namespace RepetiGo.Api.Services
         public async Task<ServiceResult<object>> ResetPassword(ResetPasswordRequest resetPasswordRequest)
         {
             var existingUser = await _userManager.FindByEmailAsync(resetPasswordRequest.Email);
-            if (existingUser == null)
+            if (existingUser is null)
             {
                 return ServiceResult<object>.Failure(
                     "No user exists with this email.",
@@ -558,7 +558,7 @@ namespace RepetiGo.Api.Services
                 );
             }
 
-            if (updateAvatarRequest.File == null || updateAvatarRequest.File.Length == 0)
+            if (updateAvatarRequest.File is null || updateAvatarRequest.File.Length == 0)
             {
                 return ServiceResult<ProfileResponse>.Failure(
                     "Avatar file is required",
@@ -624,7 +624,7 @@ namespace RepetiGo.Api.Services
             }
 
             var settings = await _unitOfWork.SettingsRepository.GetSettingsByUserIdAsync(userId);
-            if (settings == null)
+            if (settings is null)
             {
                 return ServiceResult<SettingsResponse>.Failure(
                     "Settings not found.",

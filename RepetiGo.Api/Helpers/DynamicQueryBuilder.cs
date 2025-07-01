@@ -14,7 +14,7 @@ namespace RepetiGo.Api.Helpers
 
             // Validate property exist
             var property = typeof(T).GetProperty(sortBy, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (property == null) return null;
+            if (property is null) return null;
 
             return (query) =>
             {
@@ -96,35 +96,35 @@ namespace RepetiGo.Api.Helpers
                 {
                     valueExpression = Expression.Constant(intValue);
                     var equalExpression = Expression.Equal(propertyAccess, valueExpression);
-                    combinedExpression = combinedExpression == null ? equalExpression :
+                    combinedExpression = combinedExpression is null ? equalExpression :
                         Expression.AndAlso(combinedExpression, equalExpression);
                 }
                 else if (property.PropertyType == typeof(bool) && bool.TryParse(value, out var boolValue))
                 {
                     valueExpression = Expression.Constant(boolValue);
                     var equalExpression = Expression.Equal(propertyAccess, valueExpression);
-                    combinedExpression = combinedExpression == null ? equalExpression :
+                    combinedExpression = combinedExpression is null ? equalExpression :
                         Expression.AndAlso(combinedExpression, equalExpression);
                 }
                 else if (property.PropertyType == typeof(DateTime) && DateTime.TryParse(value, out var dateValue))
                 {
                     valueExpression = Expression.Constant(dateValue);
                     var equalExpression = Expression.Equal(propertyAccess, valueExpression);
-                    combinedExpression = combinedExpression == null ? equalExpression :
+                    combinedExpression = combinedExpression is null ? equalExpression :
                         Expression.AndAlso(combinedExpression, equalExpression);
                 }
                 else if (property.PropertyType.IsEnum && Enum.TryParse(property.PropertyType, value, true, out var enumValue))
                 {
                     valueExpression = Expression.Constant(enumValue);
                     var equalExpression = Expression.Equal(propertyAccess, valueExpression);
-                    combinedExpression = combinedExpression == null ? equalExpression :
+                    combinedExpression = combinedExpression is null ? equalExpression :
                         Expression.AndAlso(combinedExpression, equalExpression);
                 }
                 else if (property.PropertyType == typeof(double) && double.TryParse(value, out var doubleValue))
                 {
                     valueExpression = Expression.Constant(doubleValue);
                     var equalExpression = Expression.Equal(propertyAccess, valueExpression);
-                    combinedExpression = combinedExpression == null ? equalExpression :
+                    combinedExpression = combinedExpression is null ? equalExpression :
                         Expression.AndAlso(combinedExpression, equalExpression);
                 }
                 else

@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
+
 using RepetiGo.Api.Dtos.StatsDtos;
 
 namespace RepetiGo.Api.Controllers
 {
+    [Authorize]
     [Route("api/stats")]
     [ApiController]
     public class StatsController : ControllerBase

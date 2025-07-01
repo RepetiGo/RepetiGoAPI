@@ -260,21 +260,23 @@ namespace RepetiGo.Api.Services
             if (year < 2000 || year > DateTime.UtcNow.Year)
             {
                 return ServiceResult<ActivityStatsResponse>.Failure(
-                    "Year must be between 2025 and the current year",
+                    "Year must be between 2000 and the current year",
                     HttpStatusCode.BadRequest);
             }
 
             //var timeLine = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var startOfYear = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            var startOfNextYear = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             var userReviews = await _unitOfWork.ReviewsRepository.GetAllAsync(
-                filter: r => r.Card.Deck.UserId == userId && r.CreatedAt.Year == year
+                filter: r => r.Card.Deck.UserId == userId && r.CreatedAt >= startOfYear && r.CreatedAt < startOfNextYear
             );
 
             var userReviewDates = userReviews
                 .Select(r => r.CreatedAt)
                 .ToList();
 
-            if (userReviewDates == null || userReviewDates.Count == 0)
+            if (userReviewDates.Count == 0)
             {
                 return ServiceResult<ActivityStatsResponse>.Failure(
                     "No reviews found for the specified year",
@@ -297,13 +299,8 @@ namespace RepetiGo.Api.Services
                 .OrderBy(d => d)
                 .ToHashSet();
 
-            Console.WriteLine($"Total learned days: {learnedDays.Count}");
-
             var (longestStreak, currentStreak) = CalculateStreaks(learnedDays);
 
-            var firstReviewDate = userReviewDates.Min();
-            //var totalDaysSinceStart = (DateTime.UtcNow - new DateTime(year, 1, 1)).TotalDays;
-            //var totalDaysSinceStart = (DateTime.UtcNow - firstReviewDate).TotalDays;
             var totalDaysSinceStart = DateTime.UtcNow.Year == year
                 ? (DateTime.UtcNow - new DateTime(year, 1, 1)).TotalDays
                 : (new DateTime(year + 1, 1, 1) - new DateTime(year, 1, 1)).TotalDays;
