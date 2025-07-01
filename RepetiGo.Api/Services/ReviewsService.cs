@@ -30,6 +30,15 @@ namespace RepetiGo.Api.Services
             // Update the card
             card.LastReviewed = DateTime.UtcNow;
             await _unitOfWork.CardsRepository.UpdateAsync(card);
+
+            // Create a review entry
+            var review = new Review
+            {
+                CardId = card.Id,
+                Rating = reviewRating,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _unitOfWork.ReviewsRepository.AddAsync(review);
             await _unitOfWork.SaveAsync();
         }
 
@@ -265,11 +274,11 @@ namespace RepetiGo.Api.Services
             }
 
             //var timeLine = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var startOfYear = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            var startOfNextYear = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            //var startOfYear = new DateTime(year, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            //var startOfNextYear = new DateTime(year + 1, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             var userReviews = await _unitOfWork.ReviewsRepository.GetAllAsync(
-                filter: r => r.Card.Deck.UserId == userId && r.CreatedAt >= startOfYear && r.CreatedAt < startOfNextYear
+                filter: r => r.Card.Deck.UserId == userId && r.CreatedAt.Year == year
             );
 
             var userReviewDates = userReviews
