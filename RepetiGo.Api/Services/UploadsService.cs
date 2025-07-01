@@ -82,7 +82,7 @@ namespace RepetiGo.Api.Services
 
         public async Task<ImageUploadResponse> UploadImageAsync(byte[] bytes)
         {
-            if (bytes == null || bytes.Length == 0)
+            if (bytes is null || bytes.Length == 0)
             {
                 return new ImageUploadResponse
                 {
@@ -124,7 +124,7 @@ namespace RepetiGo.Api.Services
 
         public async Task<ImageUploadResponse> UploadImageAsync(IFormFile formFile)
         {
-            if (formFile == null || formFile.Length == 0)
+            if (formFile is null || formFile.Length == 0)
             {
                 return new ImageUploadResponse
                 {

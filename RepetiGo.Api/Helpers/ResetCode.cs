@@ -29,7 +29,7 @@ namespace RepetiGo.Api.Helpers
 
         public static bool ValidateResetCode(string email, string code)
         {
-            if (email == null || code == null)
+            if (email is null || code is null)
             {
                 return false;
             }
