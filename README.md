@@ -6,84 +6,140 @@
 
 **RepetiGo** is a modern, intelligent spaced repetition learning platform that helps users memorize information efficiently using scientifically-proven memory techniques. Built with .NET 9 and featuring AI-powered content generation.
 
-## 🌟 Features
+## 📋 Prerequisites
 
-### Core Learning Features
+### Required Software
+- **.NET 9.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/9.0)
+- **Git** for version control
 
--   **🧠 Advanced Spaced Repetition**: Custom SM-2 algorithm with adaptive scheduling
--   **🤖 AI-Powered Card Generation**: Generate flashcards with Google Gemini AI
--   **📱 Multi-Media Cards**: Support for text and images with Cloudinary integration
--   **📊 Progress Tracking**: Detailed learning analytics and statistics
--   **⚙️ Customizable Settings**: Fine-tune learning parameters to your preference
--   **📅 Due Cards Management**: Smart scheduling for optimal review timing
+### Optional Tools
+- **Visual Studio 2022** (with .NET desktop development workload) or **Visual Studio Code**
+- **SQL Server Management Studio (SSMS)** for database management (if using local SQL Server)
+- **Postman** or similar tool for API testing
 
-### User Experience
+## 🚀 Quick Start
 
--   **🔐 Secure Authentication**: JWT-based auth with email verification
--   **👤 User Profiles**: Avatar management and personalization
--   **🌐 Community Sharing**: Share and discover public deck libraries
--   **📱 RESTful API**: Clean, well-documented API for frontend integration
--   **📧 Email Notifications**: Password reset and account verification
+### 1. Clone the Repository
+```bash
+git clone <repository-url>
+cd RepetiGo
+```
 
-### Technical Excellence
+### 2. Restore Dependencies
+```bash
+dotnet restore
+```
 
--   **🏗️ Clean Architecture**: SOLID principles with repository pattern
--   **🔄 Unit of Work**: Consistent data management
--   **📝 Auto-Mapping**: Efficient DTO transformations with AutoMapper
--   **🛡️ Input Validation**: Comprehensive data validation
--   **📄 API Documentation**: Swagger/OpenAPI integration
--   **🚀 Rate Limiting**: Built-in protection against abuse
--   **💾 Caching**: Redis-based caching for improved performance
--   **🔒 Security**: CORS, authentication, and authorization
+### 3. Required Files Setup
+
+**File Location**:
+* Place the `gen-lang-client-0042585374-cee6dd59fb76.json` file in the `RepetiGo.Api` folder (same directory as `Program.cs`).
+* Place the `appsettings.json` file in the same directory as well.
+* Place the `launchSettings.json` file in the `Properties` folder of the `RepetiGo.Api` project.
+
+```
+RepetiGo/
+├── RepetiGo.Api/
+│   ├── Properties/launchSettings.json ← Place here
+│   ├── gen-lang-client-0042585374-cee6dd59fb76.json  ← Place here
+│   ├── Program.cs
+│   ├── appsettings.json ← Place here
+│   └── ...
+```
+
+### 4. Run the Application
+```bash
+# From the root directory
+cd RepetiGo.Api
+dotnet run
+```
+
+The API will be available at:
+- **HTTP**: `http://localhost:5147`
+- **Swagger UI**: `http://localhost:5147/swagger` (in Development mode)
+
+## 🧪 Running Tests
+
+### Run All Tests
+```bash
+# From the root directory
+cd RepetiGo.Api.Tests
+dotnet test
+```
+
+## 📱 Using the API
+
+### Launch Profiles
+The project has two launch profiles configured in [`Properties/launchSettings.json`](RepetiGo.Api/Properties/launchSettings.json):
+
+#### HTTP Profile
+```bash
+dotnet run --launch-profile http
+```
+- URL: `http://localhost:5147`
+- Environment: Development
+
+### API Documentation
+- **Swagger UI**: `http://localhost:5147/swagger` (Development only)
+- **OpenAPI Spec**: `http://localhost:5147/openapi/v1.json`
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### 1. SSL Certificate Issues
+```bash
+# Trust the development certificate
+dotnet dev-certs https --trust
+```
+
+#### 2. Port Already in Use
+- The application uses ports 5147 (HTTP) and 7213 (HTTPS)
+- Kill any processes using these ports if needed
+- Ports can be changed in [`Properties/launchSettings.json`](RepetiGo.Api/Properties/launchSettings.json)
+
+#### 3. Package Restore Issues
+```bash
+# Clear NuGet cache
+dotnet nuget locals all --clear
+
+# Restore packages
+dotnet restore --force
+```
+
+## 🏗️ Project Structure
+
+### Main Projects
+- **[`RepetiGo.Api`](RepetiGo.Api)**: Main API project
+- **[`RepetiGo.Api.Tests`](RepetiGo.Api.Tests)**: Unit and integration tests
+
+### Key Components
+- **Controllers**: API endpoints in [`RepetiGo.Api/Controllers`](RepetiGo.Api/Controllers)
+- **Services**: Business logic in [`RepetiGo.Api/Services`](RepetiGo.Api/Services)
+- **Models**: Data models in [`RepetiGo.Api/Models`](RepetiGo.Api/Models)
+- **Data**: Database context and migrations in [`RepetiGo.Api/Data`](RepetiGo.Api/Data)
+
+### Features Available
+- ✅ **User Registration & Authentication**
+- ✅ **Email Verification**
+- ✅ **Password Reset**
+- ✅ **Deck Management**
+- ✅ **Flashcard Creation & Management**
+- ✅ **AI-Powered Card Generation** (Google Gemini)
+- ✅ **Image Upload** (Cloudinary)
+- ✅ **Spaced Repetition Algorithm** (SM-2)
+- ✅ **Review System**
+- ✅ **User Settings**
+- ✅ **Rate Limiting**
+- ✅ **Caching** (Redis)
 
 ## 🧠 Spaced Repetition System
 
-RepetiGo implements a custom SM-2 algorithm for optimal learning:
-
-### Algorithm Properties
-- **Easiness Factor (EF)**: Starts at 2.5, adjusts based on performance
-- **Repetition Count**: Tracks how many times a card has been reviewed
-- **Learning Steps**: Manages the initial learning phase
-- **Next Review**: Calculates optimal review timing
-
-### Review Ratings
-- **Again (1)**: Card was difficult, repeat sooner
-- **Hard (2)**: Card was somewhat difficult
-- **Good (3)**: Card was answered correctly
-- **Easy (4)**: Card was very easy
-
-### Scheduling Logic
-- New cards start in learning phase
-- Cards graduate to review phase after successful reviews
-- Intervals increase exponentially based on performance
-- Failed cards return to learning phase
-
-## 🤖 AI Integration
-
-### Google Gemini Integration
-- **Card Generation**: Create flashcards from topics or text
-- **Content Enhancement**: Improve existing card content
-- **Image Generation**: Generate relevant images for cards
-- **Smart Suggestions**: AI-powered study recommendations
-
-## 🛡️ Security Features
-
-### Authentication & Authorization
-- JWT-based authentication with refresh tokens
-- Role-based access control
-- Secure password hashing with ASP.NET Core Identity
-- Email verification for new accounts
-
-### Data Protection
-- Input validation and sanitization
-- SQL injection prevention with Entity Framework
-- XSS protection with proper content encoding
-- CORS configuration for cross-origin requests
-
-### Rate Limiting
-- API rate limiting to prevent abuse
-- Separate limits for AI generation endpoints
-- Configurable limits per user/IP
+The application implements a custom SM-2 algorithm with the following default settings:
+- **Learning Steps**: "25m 1d" (25 minutes, then 1 day)
+- **Graduating Interval**: 3 days
+- **Easy Interval**: 4 days
+- **Starting Easiness Factor**: 2.5
 
 ## 📊 Database Schema
 
@@ -92,63 +148,29 @@ RepetiGo implements a custom SM-2 algorithm for optimal learning:
 - **Decks**: Flashcard collections
 - **Cards**: Individual flashcards with SRS data
 - **Reviews**: Review history and performance tracking
-- **Settings**: User preferences and configuration
+- **Settings**: User preferences and SRS configuration
 
-### Relationships
-- Users can have multiple decks
-- Decks contain multiple cards
-- Cards have multiple reviews
-- Each user has one settings record
+## 📞 Support
 
-## 🚀 Deployment
+If you encounter any issues:
+1. Check the troubleshooting section above
+2. Review the application logs in the console
+3. Ensure all prerequisites are installed
+4. Verify the application is running on the correct ports
 
-### Production Considerations
-- Use production-grade database (Azure SQL, AWS RDS)
-- Configure Redis for caching
-- Set up proper logging and monitoring
-- Use HTTPS in production
-- Configure proper CORS origins
-- Set up CI/CD pipeline
+## 🔍 Testing the Application
 
-## 🧪 Testing
-
-### Test Structure
-- Unit tests for services and repositories
-- Integration tests for API endpoints
-- Database tests with in-memory provider
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-- Follow C# coding conventions
-- Write unit tests for new features
-- Update documentation for API changes
-- Use conventional commit messages
+### Quick Test Steps
+1. Start the application: `dotnet run`
+2. Open browser to: `http://localhost:5147/swagger`
+3. Try the registration endpoint with sample data
+4. Check email verification (logs will show the verification link)
+5. Test login with verified account
+6. Create a deck and add cards
+7. Test the AI card generation features
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-- **Documentation**: [API Documentation](https://localhost:{PORT}/swagger)
-- **Issues**: [GitHub Issues](https://github.com/RepetiGo/Server/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/RepetiGo/Server/discussions)
-
-## 🙏 Acknowledgments
-
-- **SM-2 Algorithm**: Based on the SuperMemo 2 spaced repetition algorithm
-- **Google Gemini**: AI-powered content generation
-- **Cloudinary**: Image hosting and manipulation
-- **ASP.NET Core**: Modern web framework
-- **Entity Framework**: Data access and ORM
-
----
-
-**RepetiGo** - Making learning efficient and intelligent! 🧠✨
+**The application is fully configured and ready to run!** 🚀
