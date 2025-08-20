@@ -53,5 +53,7 @@
         {
             return await _context.SaveChangesAsync();
         }
+
+        // Unit of work doesn't create its own context so we don't need to dispose of it, it depends on the DI container, which decides based on the lifetime we registered the UnitOfWork as a service
     }
 }
