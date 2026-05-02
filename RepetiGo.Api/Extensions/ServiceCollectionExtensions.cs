@@ -266,6 +266,15 @@ namespace RepetiGo.Api.Extensions
                     BackoffType = DelayBackoffType.Exponential,
                     UseJitter = true
                 });
+                // Add the Circuit Breaker
+                builder.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+                {
+                    FailureRatio = 0.5,             // Break if 50% of requests fail
+                    SamplingDuration = TimeSpan.FromSeconds(30), // Monitor over this window
+                    MinimumThroughput = 10,         // Don't break until at least 10 requests occur
+                    BreakDuration = TimeSpan.FromSeconds(15),    // How long to stay open
+                    ShouldHandle = new PredicateBuilder().Handle<Exception>()
+                });
                 builder.AddTimeout(TimeSpan.FromSeconds(30));
             });
 
